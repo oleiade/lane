@@ -18,16 +18,16 @@ func NewQueue() *Queue {
 
 func (q *Queue) Enqueue(item interface{}) {
 	q.Lock()
+	defer q.Unlock()
 
 	q.container = append(q.container, item)
-
-	q.Unlock()
 
 	return
 }
 
 func (q *Queue) Dequeue() interface{} {
 	q.Lock()
+	defer q.Unlock()
 
 	item, err := q.getFirstItem()
 	if err != nil {
@@ -40,19 +40,14 @@ func (q *Queue) Dequeue() interface{} {
 		q.container = *new([]interface{})
 	}
 
-	q.Unlock()
-
 	return item
 }
 
 func (q *Queue) Size() int {
 	q.RLock()
+	defer q.RUnlock()
 
-	queueSize := len(q.container)
-
-	q.RUnlock()
-
-	return queueSize
+	return len(q.container)
 }
 
 func (q *Queue) Head() interface{} {
