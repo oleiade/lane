@@ -1,8 +1,8 @@
 package lane
 
 // Stack is a LIFO (Last in first out) data structure implementation.
-// It is based on a deque as container and focuses its API on core
-// functionalities: Push, Pop, Head. Every operations time complexity
+// It is based on a deque container and focuses its API on core
+// functionalities: Push, Pop, Head, Size, Empty. Every operations time complexity
 // is O(1).
 //
 // As it is implemented using a Deque container, every operations
