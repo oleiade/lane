@@ -5,6 +5,12 @@ import (
 	"sync"
 )
 
+// Deque is a head-tail linked list data structure implementation.
+// It is based on a doubly linked list container, so that every
+// operations time complexity is O(1).
+//
+// every operations over an instiated Deque are synchronized and
+// safe for concurrent usage.
 type Deque struct {
 	sync.RWMutex
 	container *list.List
