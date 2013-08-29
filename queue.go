@@ -1,12 +1,12 @@
 package lane
 
 type Queue struct {
-	Deque
+	*Deque
 }
 
 func NewQueue() *Queue {
 	return &Queue{
-		Deque: *NewDeque(),
+		Deque: NewDeque(),
 	}
 }
 
