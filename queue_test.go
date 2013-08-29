@@ -12,9 +12,9 @@ func TestQueueEnqueue(t *testing.T) {
 	queue.Enqueue("2")
 	queue.Enqueue("3")
 
-	assert.True(t, queue.container.Len() == 3)
-	assert.Equal(t, queue.container.Front().Value, "3")
-	assert.Equal(t, queue.container.Back().Value, "1")
+	assert.True(t, queue.Size() == 3)
+	assert.Equal(t, queue.First(), "3")
+	assert.Equal(t, queue.Last(), "1")
 }
 
 func TestQueueDequeue_fulfilled(t *testing.T) {
@@ -26,13 +26,13 @@ func TestQueueDequeue_fulfilled(t *testing.T) {
 
 	item := queue.Dequeue()
 	assert.Equal(t, item, "1")
-	assert.Equal(t, queue.container.Len(), 2)
+	assert.Equal(t, queue.Size(), 2)
 	item = queue.Dequeue()
 	assert.Equal(t, item, "2")
-	assert.Equal(t, queue.container.Len(), 1)
+	assert.Equal(t, queue.Size(), 1)
 	item = queue.Dequeue()
 	assert.Equal(t, item, "3")
-	assert.Equal(t, queue.container.Len(), 0)
+	assert.Equal(t, queue.Size(), 0)
 }
 
 func TestQueueDequeue_empty(t *testing.T) {
@@ -40,7 +40,7 @@ func TestQueueDequeue_empty(t *testing.T) {
 
 	item := queue.Dequeue()
 	assert.Equal(t, item, nil)
-	assert.Equal(t, queue.container.Len(), 0)
+	assert.Equal(t, queue.Size(), 0)
 }
 
 func TestQueueHead_fulfilled(t *testing.T) {
@@ -52,7 +52,7 @@ func TestQueueHead_fulfilled(t *testing.T) {
 
 	item := queue.Head()
 	assert.Equal(t, item, "1")
-	assert.Equal(t, queue.container.Len(), 3)
+	assert.Equal(t, queue.Size(), 3)
 }
 
 func TestQueueHead_empty(t *testing.T) {
@@ -60,20 +60,5 @@ func TestQueueHead_empty(t *testing.T) {
 
 	item := queue.Head()
 	assert.Equal(t, item, nil)
-	assert.Equal(t, queue.container.Len(), 0)
-}
-
-func TestQueueEmpty_fulfilled(t *testing.T) {
-	queue := NewQueue()
-
-	queue.Enqueue("1")
-	queue.Enqueue("2")
-	queue.Enqueue("3")
-
-	assert.False(t, queue.Empty())
-}
-
-func TestQueueEmpty_empty_queue(t *testing.T) {
-	queue := NewQueue()
-	assert.True(t, queue.Empty())
+	assert.Equal(t, queue.Size(), 0)
 }

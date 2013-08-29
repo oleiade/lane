@@ -1,68 +1,23 @@
 package lane
 
-import (
-	"container/list"
-	"sync"
-)
-
 type Queue struct {
-	sync.RWMutex
-	container *list.List
+	Deque
 }
 
 func NewQueue() *Queue {
 	return &Queue{
-		container: list.New(),
+		Deque: *NewDeque(),
 	}
 }
 
 func (q *Queue) Enqueue(item interface{}) {
-	q.Lock()
-	defer q.Unlock()
-
-	q.container.PushFront(item)
-
-	return
+	q.Prepend(item)
 }
 
 func (q *Queue) Dequeue() interface{} {
-	q.Lock()
-	defer q.Unlock()
-
-	var item interface{} = nil
-	var lastListItem *list.Element = nil
-
-	lastListItem = q.container.Back()
-
-	if lastListItem != nil {
-		item = q.container.Remove(lastListItem)
-	}
-
-	return item
-}
-
-func (q *Queue) Size() int {
-	q.RLock()
-	defer q.RUnlock()
-
-	return q.container.Len()
-}
-
-func (q *Queue) Empty() bool {
-	q.RLock()
-	defer q.RUnlock()
-
-	return q.container.Len() == 0
+	return q.Pop()
 }
 
 func (q *Queue) Head() interface{} {
-	q.RLock()
-	defer q.RUnlock()
-
-	item := q.container.Back()
-	if item != nil {
-		return item.Value
-	} else {
-		return nil
-	}
+	return q.Last()
 }

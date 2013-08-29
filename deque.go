@@ -52,7 +52,7 @@ func (s *Deque) Pop() interface{} {
 	return item
 }
 
-// Shift removes the last element of the deque in a O(1) time complexity
+// Shift removes the first element of the deque in a O(1) time complexity
 func (s *Deque) Shift() interface{} {
 	s.Lock()
 	defer s.Unlock()
