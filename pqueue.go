@@ -18,9 +18,9 @@ type item struct {
 	priority int
 }
 
-// PQueue is a heap priority queue implementation. It can be
-// whether max or min ordered and is safe
-// for concurrent read-write operations.
+// PQueue is a heap priority queue data structure implementation.
+// It can be whether max or min ordered and it is synchronized
+// and is safe for concurrent operations.
 type PQueue struct {
 	sync.RWMutex
 	items      []*item
@@ -58,11 +58,6 @@ func NewPQueue(pqType PQType) *PQueue {
 		elemsCount: 0,
 		comparator: cmp,
 	}
-}
-
-// Size returns the elements present in the priority queue count
-func (pq *PQueue) Size() int {
-	return pq.elemsCount
 }
 
 // Push the value item into the priority queue with provided priority.
@@ -110,6 +105,11 @@ func (pq *PQueue) Head() (interface{}, int) {
 	pq.RUnlock()
 
 	return headValue, headPriority
+}
+
+// Size returns the elements present in the priority queue count
+func (pq *PQueue) Size() int {
+	return pq.elemsCount
 }
 
 func max(i, j int) bool {
