@@ -46,13 +46,25 @@ func (q *Queue) Dequeue() interface{} {
 }
 
 func (q *Queue) Size() int {
-	q.Lock()
+	q.RLock()
 
 	queueSize := len(q.container)
 
-	q.Unlock()
+	q.RUnlock()
 
 	return queueSize
+}
+
+func (q *Queue) Head() interface{} {
+	q.RLock()
+	defer q.RUnlock()
+
+	item, err := q.getFirstItem()
+	if err != nil {
+		return nil
+	}
+
+	return item
 }
 
 func (q *Queue) getFirstItem() (interface{}, error) {
