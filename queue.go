@@ -6,7 +6,7 @@ package lane
 // is O(1).
 //
 // As it is implemented using a Deque container, every operations
-// over an instiated Stack are synchronized and safe for concurrent
+// over an instiated Queue are synchronized and safe for concurrent
 // usage.
 type Queue struct {
 	*Deque
