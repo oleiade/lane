@@ -1,18 +1,18 @@
 package lane
 
 import (
-	"errors"
+	"container/list"
 	"sync"
 )
 
 type Queue struct {
 	sync.RWMutex
-	container []interface{}
+	container *list.List
 }
 
 func NewQueue() *Queue {
 	return &Queue{
-		container: *new([]interface{}),
+		container: list.New(),
 	}
 }
 
@@ -20,7 +20,7 @@ func (q *Queue) Enqueue(item interface{}) {
 	q.Lock()
 	defer q.Unlock()
 
-	q.container = append(q.container, item)
+	q.container.PushFront(item)
 
 	return
 }
@@ -29,15 +29,13 @@ func (q *Queue) Dequeue() interface{} {
 	q.Lock()
 	defer q.Unlock()
 
-	item, err := q.getFirstItem()
-	if err != nil {
-		return nil
-	}
+	var item interface{} = nil
+	var lastListItem *list.Element = nil
 
-	if len(q.container) > 1 {
-		q.container = q.container[1:]
-	} else {
-		q.container = *new([]interface{})
+	lastListItem = q.container.Back()
+
+	if lastListItem != nil {
+		item = q.container.Remove(lastListItem)
 	}
 
 	return item
@@ -47,32 +45,24 @@ func (q *Queue) Size() int {
 	q.RLock()
 	defer q.RUnlock()
 
-	return len(q.container)
+	return q.container.Len()
 }
 
 func (q *Queue) Empty() bool {
 	q.RLock()
 	defer q.RUnlock()
 
-	return len(q.container) == 0
+	return q.container.Len() == 0
 }
 
 func (q *Queue) Head() interface{} {
 	q.RLock()
 	defer q.RUnlock()
 
-	item, err := q.getFirstItem()
-	if err != nil {
-		return nil
-	}
-
-	return item
-}
-
-func (q *Queue) getFirstItem() (interface{}, error) {
-	if len(q.container) >= 1 {
-		return q.container[0], nil
+	item := q.container.Back()
+	if item != nil {
+		return item.Value
 	} else {
-		return nil, errors.New("The queue is empty")
+		return nil
 	}
 }
