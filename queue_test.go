@@ -63,3 +63,18 @@ func TestQueueHead_empty(t *testing.T) {
 	assert.Equal(t, item, nil)
 	assert.Equal(t, len(queue.container), 0)
 }
+
+func TestQueueEmpty_fulfilled(t *testing.T) {
+	queue := NewQueue()
+
+	queue.Enqueue("1")
+	queue.Enqueue("2")
+	queue.Enqueue("3")
+
+	assert.False(t, queue.Empty())
+}
+
+func TestQueueEmpty_empty_queue(t *testing.T) {
+	queue := NewQueue()
+	assert.True(t, queue.Empty())
+}

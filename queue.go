@@ -50,6 +50,13 @@ func (q *Queue) Size() int {
 	return len(q.container)
 }
 
+func (q *Queue) Empty() bool {
+	q.RLock()
+	defer q.RUnlock()
+
+	return len(q.container) == 0
+}
+
 func (q *Queue) Head() interface{} {
 	q.RLock()
 	defer q.RUnlock()
