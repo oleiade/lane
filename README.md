@@ -88,7 +88,7 @@ Deque is a *head-tail linked list data* structure implementation. It is based on
 
 #### Queue
 
-Queue is a **FIFO** (*First in first out*) data structure implementation. It is based on a deque container and focuses its API on core functionalities: Enqueue, Dequeue, Head, Size, Empty. Every operations time complexity is O(1). As it is implemented using a Deque container, every operations over an instiated Queue are synchronized and safe for concurrent usage.
+Queue is a **FIFO** ( *First in first out* ) data structure implementation. It is based on a deque container and focuses its API on core functionalities: Enqueue, Dequeue, Head, Size, Empty. Every operations time complexity is O(1). As it is implemented using a Deque container, every operations over an instiated Queue are synchronized and safe for concurrent usage.
 
 ##### Example
 
@@ -112,7 +112,7 @@ Queue is a **FIFO** (*First in first out*) data structure implementation. It is 
 
 #### Stack
 
-Stack is a **LIFO** (*Last in first out*) data structure implementation. It is based on a deque container and focuses its API on core functionalities: Push, Pop, Head, Size, Empty. Every operations time complexity is O(1). As it is implemented using a Deque container, every operations over an instiated Stack are synchronized and safe for concurrent usage.
+Stack is a **LIFO** ( *Last in first out* ) data structure implementation. It is based on a deque container and focuses its API on core functionalities: Push, Pop, Head, Size, Empty. Every operations time complexity is O(1). As it is implemented using a Deque container, every operations over an instiated Stack are synchronized and safe for concurrent usage.
 
 ##### Example
 
