@@ -35,7 +35,33 @@ func ExamplePQueue() {
 }
 
 func ExampleDeque() {
+	// Let's create a new deque data structure
+	var deque *Deque = NewDeque()
 
+	// And push some content into it using the Append
+	// and Prepend methods
+	deque.Append("easy as")
+	deque.Prepend("123")
+	deque.Append("do re mi")
+	deque.Prepend("abc")
+
+	// Now let's take a look at what are the first and
+	// last element stored in the Deque
+	firstValue := deque.First()
+	lastValue := deque.Last()
+	fmt.Println(firstValue) // "abc"
+	fmt.Println(lastValue)  // 1
+
+	// Okay now let's play with the Pop and Shift
+	// methods to bring the song words together
+	var jacksonFive []string = make([]string, deque.Size())
+
+	for i := 0; i < len(jacksonFive); i++ {
+		value := deque.Shift()
+		jacksonFive[i] = value.(string)
+	}
+
+	fmt.Println(strings.Join(jacksonFive, " "))
 }
 
 func ExampleQueue() {
