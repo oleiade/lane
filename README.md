@@ -16,6 +16,10 @@ usage in mind.
 
 #### Priority Queue
 
+Pqueue is a *heap priority queue* data structure implementation. It can be whether max or min ordered, is synchronized and is safe for concurrent operations. It performs insertion and max/min removal in O(log N) time.
+
+##### Example
+
 ```go
 	// Let's create a new max ordered priority queue
 	var priorityQueue *PQueue = NewPQueue(MINPQ)
@@ -46,6 +50,10 @@ usage in mind.
 ```
 
 #### Deque
+
+Deque is a *head-tail linked list data* structure implementation. It is based on a doubly linked list container, so that every operations time complexity is O(1). Every operations over an instiated Deque are synchronized and safe for concurrent usage.
+
+##### Example
 
 ```go
 	// Let's create a new deque data structure
@@ -80,6 +88,10 @@ usage in mind.
 
 #### Queue
 
+Queue is a **FIFO** (*First in first out*) data structure implementation. It is based on a deque container and focuses its API on core functionalities: Enqueue, Dequeue, Head, Size, Empty. Every operations time complexity is O(1). As it is implemented using a Deque container, every operations over an instiated Queue are synchronized and safe for concurrent usage.
+
+##### Example
+
 ```go
 	// Create a new queue and pretend we're handling starbucks
 	// clients
@@ -99,6 +111,10 @@ usage in mind.
 ```
 
 #### Stack
+
+Stack is a **LIFO** (*Last in first out*) data structure implementation. It is based on a deque container and focuses its API on core functionalities: Push, Pop, Head, Size, Empty. Every operations time complexity is O(1). As it is implemented using a Deque container, every operations over an instiated Stack are synchronized and safe for concurrent usage.
+
+##### Example
 
 ```go
 	// Create a new stack and put some plates over it
@@ -129,7 +145,6 @@ usage in mind.
 ```
 
 
-Documentation
-=============
+## Documentation
 
 For a more detailled overview of lane, please refer to [Documentation](http://godoc.org/github.com/oleiade/lane)
