@@ -61,13 +61,27 @@ func ExampleDeque() {
 		jacksonFive[i] = value.(string)
 	}
 
+	// abc 123 easy as do re mi
 	fmt.Println(strings.Join(jacksonFive, " "))
 }
 
 func ExampleQueue() {
+	// Create a new queue and pretend we're handling starbucks
+	// clients
+	var queue *Queue = NewQueue()
 
+	// Let's add the incoming clients to the queue
+	queue.Enqueue("grumpyClient")
+	queue.Enqueue("happyClient")
+	queue.Enqueue("ecstaticClient")
+
+	fmt.Println(queue.Head) // grumpyClient
+
+	// Let's handle the clients asynchronously
+	for client := queue.Dequeue(); client != nil; {
+		go fmt.Println(client)
+	}
 }
 
 func ExampleStack() {
-
 }
