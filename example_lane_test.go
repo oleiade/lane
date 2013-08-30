@@ -84,4 +84,29 @@ func ExampleQueue() {
 }
 
 func ExampleStack() {
+	// Create a new stack and put some plates over it
+	var stack *Stack = NewStack()
+
+	// Let's put some plates on the stack
+	stack.Push("redPlate")
+	stack.Push("bluePlate")
+	stack.Push("greenPlate")
+
+	fmt.Println(stack.Head) // greenPlate
+
+	// What's on top of the stack?
+	value := stack.Pop()
+	fmt.Println(value.(string)) // greenPlate
+
+	stack.Push("yellowPlate")
+	value = stack.Pop()
+	fmt.Println(value.(string)) // yellowPlate
+
+	// What's on top of the stack?
+	value = stack.Pop()
+	fmt.Println(value.(string)) // bluePlate
+
+	// What's on top of the stack?
+	value = stack.Pop()
+	fmt.Println(value.(string)) // redPlate
 }
