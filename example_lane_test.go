@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func ExamplePriorityQueue() {
+func ExamplePQueue() {
 	// Let's create a new max ordered priority queue
 	var priorityQueue *PQueue = NewPQueue(MINPQ)
 
