@@ -148,3 +148,7 @@ Stack is a **LIFO** ( *Last in first out* ) data structure implementation. It is
 ## Documentation
 
 For a more detailled overview of lane, please refer to [Documentation](http://godoc.org/github.com/oleiade/lane)
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/oleiade/lane/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
