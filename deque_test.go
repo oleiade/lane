@@ -8,24 +8,48 @@ import (
 func TestDequeAppend(t *testing.T) {
 	queue := NewDeque()
 
-	queue.Append("1")
-	queue.Append("2")
-	queue.Append("3")
+	assert.True(t, queue.Append("1"))
+	assert.True(t, queue.Append("2"))
+	assert.True(t, queue.Append("3"))
 
 	assert.True(t, queue.container.Len() == 3)
 	assert.Equal(t, queue.container.Front().Value, "1")
 	assert.Equal(t, queue.container.Back().Value, "3")
 }
 
+func TestDequeAppendWithCapacity(t *testing.T) {
+	queue := NewDequeWithCapacity(2)
+
+	assert.True(t, queue.Append("1"))
+	assert.True(t, queue.Append("2"))
+	assert.False(t, queue.Append("3"))
+
+	assert.True(t, queue.container.Len() == 2)
+	assert.Equal(t, queue.container.Front().Value, "1")
+	assert.Equal(t, queue.container.Back().Value, "2")
+}
+
 func TestDequePrepend(t *testing.T) {
 	queue := NewDeque()
 
-	queue.Prepend("1")
-	queue.Prepend("2")
-	queue.Prepend("3")
+	assert.True(t, queue.Prepend("1"))
+	assert.True(t, queue.Prepend("2"))
+	assert.True(t, queue.Prepend("3"))
 
 	assert.True(t, queue.container.Len() == 3)
 	assert.Equal(t, queue.container.Front().Value, "3")
+	assert.Equal(t, queue.container.Back().Value, "1")
+}
+
+func TestDequePrependWithCapacity(t *testing.T) {
+	queue := NewDequeWithCapacity(2)
+
+	assert.True(t, queue.Prepend("1"))
+	assert.True(t, queue.Prepend("2"))
+	assert.False(t, queue.Prepend("3"))
+
+	assert.True(t, queue.container.Len() == 2)
+	assert.Equal(t, queue.container.Front().Value, "2")
 	assert.Equal(t, queue.container.Back().Value, "1")
 }
 
@@ -134,4 +158,22 @@ func TestDequeEmpty_fulfilled(t *testing.T) {
 func TestDequeEmpty_empty_queue(t *testing.T) {
 	queue := NewDeque()
 	assert.True(t, queue.Empty())
+}
+
+func TestDequeFull_fulfilled(t *testing.T) {
+	queue := NewDequeWithCapacity(3)
+
+	queue.Append("1")
+	queue.Append("2")
+	queue.Append("3")
+
+	assert.True(t, queue.Full())
+}
+
+func TestDequeFull_full_queue(t *testing.T) {
+	queue := NewDequeWithCapacity(1)
+
+	queue.Append("1")
+
+	assert.True(t, queue.Full())
 }
