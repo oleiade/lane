@@ -18,7 +18,7 @@ func TestDequeAppend(t *testing.T) {
 }
 
 func TestDequeAppendWithCapacity(t *testing.T) {
-	queue := NewDequeWithCapacity(2)
+	queue := NewCappedDeque(2)
 
 	assert.True(t, queue.Append("1"))
 	assert.True(t, queue.Append("2"))
@@ -42,7 +42,7 @@ func TestDequePrepend(t *testing.T) {
 }
 
 func TestDequePrependWithCapacity(t *testing.T) {
-	queue := NewDequeWithCapacity(2)
+	queue := NewCappedDeque(2)
 
 	assert.True(t, queue.Prepend("1"))
 	assert.True(t, queue.Prepend("2"))
@@ -161,7 +161,7 @@ func TestDequeEmpty_empty_queue(t *testing.T) {
 }
 
 func TestDequeFull_fulfilled(t *testing.T) {
-	queue := NewDequeWithCapacity(3)
+	queue := NewCappedDeque(3)
 
 	queue.Append("1")
 	queue.Append("2")
@@ -171,7 +171,7 @@ func TestDequeFull_fulfilled(t *testing.T) {
 }
 
 func TestDequeFull_full_queue(t *testing.T) {
-	queue := NewDequeWithCapacity(1)
+	queue := NewCappedDeque(1)
 
 	queue.Append("1")
 
