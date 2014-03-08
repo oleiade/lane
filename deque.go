@@ -17,18 +17,21 @@ type Deque struct {
 	capacity  int
 }
 
+// NewDeque creates a Deque.
 func NewDeque() *Deque {
-	return NewDequeWithCapacity(-1)
+	return NewCappedDeque(-1)
 }
 
-func NewDequeWithCapacity(capacity int) *Deque {
+// NewCappedDeque creates a Deque with the specified capacity limit.
+func NewCappedDeque(capacity int) *Deque {
 	return &Deque{
 		container: list.New(),
 		capacity:  capacity,
 	}
 }
 
-// Append inserts element at the back of the Deque in a O(1) time complexity
+// Append inserts element at the back of the Deque in a O(1) time complexity,
+// returning true if successful or false if the deque is at capacity.
 func (s *Deque) Append(item interface{}) bool {
 	s.Lock()
 	defer s.Unlock()
@@ -41,7 +44,8 @@ func (s *Deque) Append(item interface{}) bool {
 	return false
 }
 
-// Prepend inserts element at the Deques front in a O(1) time complexity
+// Prepend inserts element at the Deques front in a O(1) time complexity,
+// returning true if successful or false if the deque is at capacity.
 func (s *Deque) Prepend(item interface{}) bool {
 	s.Lock()
 	defer s.Unlock()

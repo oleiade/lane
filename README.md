@@ -51,7 +51,9 @@ Pqueue is a *heap priority queue* data structure implementation. It can be wheth
 
 #### Deque
 
-Deque is a *head-tail linked list data* structure implementation. It is based on a doubly linked list container, so that every operations time complexity is O(1). Every operations over an instiated Deque are synchronized and safe for concurrent usage.
+Deque is a *head-tail linked list data* structure implementation. It is based on a doubly-linked list container, so that every operations time complexity is O(1). All operations over an instiated Deque are synchronized and safe for concurrent usage. 
+
+Deques can optionally be created with a limited capacity, whereby the return value of the `Append` and `Prepend` return false if the Deque was full and the item was not added.
 
 ##### Example
 
@@ -84,6 +86,32 @@ Deque is a *head-tail linked list data* structure implementation. It is based on
 
 	// abc 123 easy as do re mi
 	fmt.Println(strings.Join(jacksonFive, " "))
+```
+
+```go
+	// Let's create a new musical quartet
+	quartet := NewCappedDeque(4)
+
+	// List of young hopeful musicians
+	musicians := []string{"John", "Paul", "George", "Ringo", "Stuart"}
+
+	// Add as many of them to the band as we can.
+	for _, name := range musicians {
+		if quartet.Append(name) {
+			fmt.Printf("%s is in the band!\n", name)
+		} else {
+			fmt.Printf("Sorry - %s is not in the band.\n", name)
+		}
+	}
+
+	// Assemble our new rock sensation
+	var beatles = make([]string, quartet.Size())
+
+	for i := 0; i < len(beatles); i++ {
+		beatles[i] = quartet.Shift().(string)
+	}
+
+	fmt.Println("The Beatles are:", strings.Join(beatles, ", "))
 ```
 
 #### Queue
