@@ -14,32 +14,48 @@ import (
 type Deque struct {
 	sync.RWMutex
 	container *list.List
+	capacity  int
 }
 
+// NewDeque creates a Deque.
 func NewDeque() *Deque {
+	return NewCappedDeque(-1)
+}
+
+// NewCappedDeque creates a Deque with the specified capacity limit.
+func NewCappedDeque(capacity int) *Deque {
 	return &Deque{
 		container: list.New(),
+		capacity:  capacity,
 	}
 }
 
-// Append inserts element at the back of the Deque in a O(1) time complexity
-func (s *Deque) Append(item interface{}) {
+// Append inserts element at the back of the Deque in a O(1) time complexity,
+// returning true if successful or false if the deque is at capacity.
+func (s *Deque) Append(item interface{}) bool {
 	s.Lock()
 	defer s.Unlock()
 
-	s.container.PushBack(item)
+	if s.capacity < 0 || s.container.Len() < s.capacity {
+		s.container.PushBack(item)
+		return true
+	}
 
-	return
+	return false
 }
 
-// Prepend inserts element at the Deques front in a O(1) time complexity
-func (s *Deque) Prepend(item interface{}) {
+// Prepend inserts element at the Deques front in a O(1) time complexity,
+// returning true if successful or false if the deque is at capacity.
+func (s *Deque) Prepend(item interface{}) bool {
 	s.Lock()
 	defer s.Unlock()
 
-	s.container.PushFront(item)
+	if s.capacity < 0 || s.container.Len() < s.capacity {
+		s.container.PushFront(item)
+		return true
+	}
 
-	return
+	return false
 }
 
 // Pop removes the last element of the deque in a O(1) time complexity
@@ -108,10 +124,23 @@ func (s *Deque) Size() int {
 	return s.container.Len()
 }
 
+// Capacity returns the capacity of the deque, or -1 if unlimited
+func (s *Deque) Capacity() int {
+	return s.capacity
+}
+
 // Empty checks if the deque is empty
 func (s *Deque) Empty() bool {
 	s.RLock()
 	defer s.RUnlock()
 
 	return s.container.Len() == 0
+}
+
+// Full checks if the deque is full
+func (s *Deque) Full() bool {
+	s.RLock()
+	defer s.RUnlock()
+
+	return s.capacity >= 0 && s.container.Len() >= s.capacity
 }
