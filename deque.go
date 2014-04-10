@@ -126,6 +126,8 @@ func (s *Deque) Size() int {
 
 // Capacity returns the capacity of the deque, or -1 if unlimited
 func (s *Deque) Capacity() int {
+	s.RLock()
+	defer s.RUnlock()
 	return s.capacity
 }
 
