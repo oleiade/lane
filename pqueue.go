@@ -67,27 +67,26 @@ func (pq *PQueue) Push(value interface{}, priority int) {
 	pq.Lock()
 	pq.items = append(pq.items, item)
 	pq.elemsCount += 1
-	pq.swim(pq.Size())
+	pq.swim(pq.size())
 	pq.Unlock()
 }
 
 // Pop and returns the highest/lowest priority item (depending on whether
 // you're using a MINPQ or MAXPQ) from the priority queue
 func (pq *PQueue) Pop() (interface{}, int) {
-	if pq.Size() < 1 {
+	pq.Lock()
+	defer pq.Unlock()
+	
+	if pq.size() < 1 {
 		return nil, 0
 	}
 
-	pq.Lock()
-
 	var max *item = pq.items[1]
 
-	pq.exch(1, pq.Size())
-	pq.items = pq.items[0:pq.Size()]
+	pq.exch(1, pq.size())
+	pq.items = pq.items[0:pq.size()]
 	pq.elemsCount -= 1
 	pq.sink(1)
-
-	pq.Unlock()
 
 	return max.value, max.priority
 }
@@ -95,20 +94,27 @@ func (pq *PQueue) Pop() (interface{}, int) {
 // Head returns the highest/lowest priority item (depending on whether
 // you're using a MINPQ or MAXPQ) from the priority queue
 func (pq *PQueue) Head() (interface{}, int) {
-	if pq.Size() < 1 {
+	pq.RLock()
+	defer pq.RUnlock()
+	
+	if pq.size() < 1 {
 		return nil, 0
 	}
 
-	pq.RLock()
 	headValue := pq.items[1].value
 	headPriority := pq.items[1].priority
-	pq.RUnlock()
 
 	return headValue, headPriority
 }
 
 // Size returns the elements present in the priority queue count
 func (pq *PQueue) Size() int {
+	pq.RLock()
+	defer pq.RUnlock()
+	return pq.size()
+}
+
+func (pq *PQueue) size() int{
 	return pq.elemsCount
 }
 
@@ -140,10 +146,10 @@ func (pq *PQueue) swim(k int) {
 }
 
 func (pq *PQueue) sink(k int) {
-	for 2*k <= pq.Size() {
+	for 2*k <= pq.size() {
 		var j int = 2 * k
 
-		if j < pq.Size() && pq.less(j, j+1) {
+		if j < pq.size() && pq.less(j, j+1) {
 			j++
 		}
 
