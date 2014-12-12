@@ -76,7 +76,7 @@ func (pq *PQueue) Push(value interface{}, priority int) {
 func (pq *PQueue) Pop() (interface{}, int) {
 	pq.Lock()
 	defer pq.Unlock()
-	
+
 	if pq.size() < 1 {
 		return nil, 0
 	}
@@ -96,7 +96,7 @@ func (pq *PQueue) Pop() (interface{}, int) {
 func (pq *PQueue) Head() (interface{}, int) {
 	pq.RLock()
 	defer pq.RUnlock()
-	
+
 	if pq.size() < 1 {
 		return nil, 0
 	}
@@ -114,7 +114,7 @@ func (pq *PQueue) Size() int {
 	return pq.size()
 }
 
-func (pq *PQueue) size() int{
+func (pq *PQueue) size() int {
 	return pq.elemsCount
 }
 
@@ -140,9 +140,9 @@ func (pq *PQueue) exch(i, j int) {
 func (pq *PQueue) swim(k int) {
 	for k > 1 && pq.less(k/2, k) {
 		pq.exch(k/2, k)
+		k = k / 2
 	}
 
-	k = k / 2
 }
 
 func (pq *PQueue) sink(k int) {
