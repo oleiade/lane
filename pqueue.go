@@ -116,9 +116,9 @@ func (pq *PQueue) Size() int {
 
 // Check queue is empty
 func (pq *PQueue) Empty() bool {
-	pg.RLock()
-	defer pg.RUnlock()
-	return pg.size() == 0
+	pq.RLock()
+	defer pq.RUnlock()
+	return pq.size() == 0
 }
 
 func (pq *PQueue) size() int {
