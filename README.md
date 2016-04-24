@@ -121,21 +121,38 @@ Queue is a **FIFO** ( *First in first out* ) data structure implementation. It i
 ##### Example
 
 ```go
-	// Create a new queue and pretend we're handling starbucks
-	// clients
-	var queue *Queue = NewQueue()
+    import (
+        "fmt"
+        "github.com/oleiade/lane"
+        "sync"
+    )
 
-	// Let's add the incoming clients to the queue
-	queue.Enqueue("grumpyClient")
-	queue.Enqueue("happyClient")
-	queue.Enqueue("ecstaticClient")
+    func worker(item interface{}, wg *sync.WaitGroup) {
+        fmt.Println(item)
+        wg.Done()
+    }
 
-	fmt.Println(queue.Head) // grumpyClient
 
-	// Let's handle the clients asynchronously
-	for client := queue.Dequeue(); client != nil; {
-		go fmt.Println(client)
-	}
+    func main() {
+
+        queue := lane.NewQueue()
+        queue.Enqueue("grumpyClient")
+        queue.Enqueue("happyClient")
+        queue.Enqueue("ecstaticClient")
+
+        var wg sync.WaitGroup
+
+        // Let's handle the clients asynchronously
+        for queue.Head() != nil {
+            item := queue.Dequeue()
+
+            wg.Add(1)
+            go worker(item, &wg)
+        }
+
+        // Wait until everything is printed
+        wg.Wait()
+    }
 ```
 
 #### Stack
