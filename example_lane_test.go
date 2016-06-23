@@ -7,7 +7,7 @@ import (
 
 func ExamplePQueue() {
 	// Let's create a new max ordered priority queue
-	var priorityQueue *PQueue = NewPQueue(MINPQ)
+	var priorityQueue *PQueue = NewPQueue(MINPQ, 0)
 
 	// And push some prioritized content into it
 	priorityQueue.Push("easy as", 3)
