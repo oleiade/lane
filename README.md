@@ -7,11 +7,19 @@ usage in mind.
 
 ## Installation
 
-```
-	go get github.com/oleiade/lane
+```bash
+$ go get gopkg.in/oleiade/lane.v1
 ```
 
 ## Usage
+
+Import lane using the gopkg url:
+
+```go
+import (
+    lane "gopkg.in/oleiade/lane.v1"
+)
+```
 
 
 #### Priority Queue
