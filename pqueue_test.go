@@ -8,7 +8,7 @@ import (
 )
 
 func TestMaxPQueue_init(t *testing.T) {
-	pqueue := NewPQueue(MAXPQ)
+	pqueue := NewPQueue(MAXPQ, 0)
 
 	assert(
 		t,
@@ -36,7 +36,7 @@ func TestMaxPQueue_init(t *testing.T) {
 }
 
 func TestMinPQueue_init(t *testing.T) {
-	pqueue := NewPQueue(MINPQ)
+	pqueue := NewPQueue(MINPQ, 0)
 
 	assert(
 		t,
@@ -64,7 +64,7 @@ func TestMinPQueue_init(t *testing.T) {
 }
 
 func TestMaxPQueuePushAndPop_protects_max_order(t *testing.T) {
-	pqueue := NewPQueue(MAXPQ)
+	pqueue := NewPQueue(MAXPQ, 0)
 	pqueueSize := 100
 
 	// Populate the test priority queue with dummy elements
@@ -101,7 +101,7 @@ func TestMaxPQueuePushAndPop_protects_max_order(t *testing.T) {
 func TestMaxPQueuePushAndPop_concurrently_protects_max_order(t *testing.T) {
 	var wg sync.WaitGroup
 
-	pqueue := NewPQueue(MAXPQ)
+	pqueue := NewPQueue(MAXPQ, 0)
 	pqueueSize := 100
 
 	// Populate the test priority queue with dummy elements
@@ -143,7 +143,7 @@ func TestMaxPQueuePushAndPop_concurrently_protects_max_order(t *testing.T) {
 }
 
 func TestMinPQueuePushAndPop_protects_min_order(t *testing.T) {
-	pqueue := NewPQueue(MINPQ)
+	pqueue := NewPQueue(MINPQ, 0)
 	pqueueSize := 100
 
 	// Populate the test priority queue with dummy elements
@@ -175,7 +175,7 @@ func TestMinPQueuePushAndPop_protects_min_order(t *testing.T) {
 }
 
 func TestMinPQueuePushAndPop_concurrently_protects_min_order(t *testing.T) {
-	pqueue := NewPQueue(MINPQ)
+	pqueue := NewPQueue(MINPQ, 0)
 	pqueueSize := 100
 
 	var wg sync.WaitGroup
@@ -216,8 +216,18 @@ func TestMinPQueuePushAndPop_concurrently_protects_min_order(t *testing.T) {
 	}
 }
 
+func TestMaxPQueueHead_max_elements(t *testing.T) {
+	// test to keep only x amount of items in the pqueue
+	pqueue := NewPQueue(MAXPQ, 100)
+
+	for i := 0; i < 1000; i++ {
+		pqueue.Push(strconv.Itoa(i), i)
+	}
+	assert(t, pqueue.Size() == 100, "pqueue.Size() = %d; want %d", pqueue.Size(), 100)
+}
+
 func TestMaxPQueueHead_returns_max_element(t *testing.T) {
-	pqueue := NewPQueue(MAXPQ)
+	pqueue := NewPQueue(MAXPQ, 0)
 
 	pqueue.Push("1", 1)
 	pqueue.Push("2", 2)
@@ -233,7 +243,7 @@ func TestMaxPQueueHead_returns_max_element(t *testing.T) {
 }
 
 func TestMinPQueueHead_returns_min_element(t *testing.T) {
-	pqueue := NewPQueue(MINPQ)
+	pqueue := NewPQueue(MINPQ, 0)
 
 	pqueue.Push("1", 1)
 	pqueue.Push("2", 2)
