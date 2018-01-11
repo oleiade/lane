@@ -59,7 +59,7 @@ Pqueue is a *heap priority queue* data structure implementation. It can be wheth
 
 #### Deque
 
-Deque is a *head-tail linked list data* structure implementation. It is based on a doubly-linked list container, so that every operations time complexity is O(1). All operations over an instiated Deque are synchronized and safe for concurrent usage. 
+Deque is a *head-tail linked list data* structure implementation. It is based on a doubly-linked list container, so that every operations time complexity is O(1). All operations over an initiated Deque are synchronized and safe for concurrent usage.
 
 Deques can optionally be created with a limited capacity, whereby the return value of the `Append` and `Prepend` return false if the Deque was full and the item was not added.
 
@@ -81,7 +81,7 @@ Deques can optionally be created with a limited capacity, whereby the return val
 	firstValue := deque.First()
 	lastValue := deque.Last()
 	fmt.Println(firstValue) // "abc"
-	fmt.Println(lastValue)  // 1
+	fmt.Println(lastValue)  // "do re mi"
 
 	// Okay now let's play with the Pop and Shift
 	// methods to bring the song words together
@@ -124,7 +124,7 @@ Deques can optionally be created with a limited capacity, whereby the return val
 
 #### Queue
 
-Queue is a **FIFO** ( *First in first out* ) data structure implementation. It is based on a deque container and focuses its API on core functionalities: Enqueue, Dequeue, Head, Size, Empty. Every operations time complexity is O(1). As it is implemented using a Deque container, every operations over an instiated Queue are synchronized and safe for concurrent usage.
+Queue is a **FIFO** ( *First in first out* ) data structure implementation. It is based on a deque container and focuses its API on core functionalities: Enqueue, Dequeue, Head, Size, Empty. Every operations time complexity is O(1). As it is implemented using a Deque container, every operations over an initiated Queue are synchronized and safe for concurrent usage.
 
 ##### Example
 
@@ -165,7 +165,7 @@ Queue is a **FIFO** ( *First in first out* ) data structure implementation. It i
 
 #### Stack
 
-Stack is a **LIFO** ( *Last in first out* ) data structure implementation. It is based on a deque container and focuses its API on core functionalities: Push, Pop, Head, Size, Empty. Every operations time complexity is O(1). As it is implemented using a Deque container, every operations over an instiated Stack are synchronized and safe for concurrent usage.
+Stack is a **LIFO** ( *Last in first out* ) data structure implementation. It is based on a deque container and focuses its API on core functionalities: Push, Pop, Head, Size, Empty. Every operations time complexity is O(1). As it is implemented using a Deque container, every operations over an initiated Stack are synchronized and safe for concurrent usage.
 
 ##### Example
 
@@ -178,7 +178,7 @@ Stack is a **LIFO** ( *Last in first out* ) data structure implementation. It is
 	stack.Push("bluePlate")
 	stack.Push("greenPlate")
 
-	fmt.Println(stack.Head) // greenPlate
+	fmt.Println(stack.Head()) // greenPlate
 
 	// What's on top of the stack?
 	value := stack.Pop()
@@ -200,8 +200,7 @@ Stack is a **LIFO** ( *Last in first out* ) data structure implementation. It is
 
 ## Documentation
 
-For a more detailled overview of lane, please refer to [Documentation](http://godoc.org/github.com/oleiade/lane)
+For a more detailed overview of lane, please refer to [Documentation](http://godoc.org/github.com/oleiade/lane)
 
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/oleiade/lane/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-

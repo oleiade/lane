@@ -50,7 +50,7 @@ func ExampleDeque() {
 	firstValue := deque.First()
 	lastValue := deque.Last()
 	fmt.Println(firstValue) // "abc"
-	fmt.Println(lastValue)  // 1
+	fmt.Println(lastValue)  // "do re mi"
 
 	// Okay now let's play with the Pop and Shift
 	// methods to bring the song words together
@@ -75,7 +75,7 @@ func ExampleQueue() {
 	queue.Enqueue("happyClient")
 	queue.Enqueue("ecstaticClient")
 
-	fmt.Println(queue.Head) // grumpyClient
+	fmt.Println(queue.Head()) // grumpyClient
 
 	// Let's handle the clients asynchronously
 	for client := queue.Dequeue(); client != nil; {
@@ -92,7 +92,7 @@ func ExampleStack() {
 	stack.Push("bluePlate")
 	stack.Push("greenPlate")
 
-	fmt.Println(stack.Head) // greenPlate
+	fmt.Println(stack.Head()) // greenPlate
 
 	// What's on top of the stack?
 	value := stack.Pop()

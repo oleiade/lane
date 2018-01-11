@@ -9,7 +9,7 @@ import (
 // It is based on a doubly linked list container, so that every
 // operations time complexity is O(1).
 //
-// every operations over an instiated Deque are synchronized and
+// every operations over an initiated Deque are synchronized and
 // safe for concurrent usage.
 type Deque struct {
 	sync.RWMutex

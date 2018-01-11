@@ -6,7 +6,7 @@ package lane
 // is O(1).
 //
 // As it is implemented using a Deque container, every operations
-// over an instiated Stack are synchronized and safe for concurrent
+// over an initiated Stack are synchronized and safe for concurrent
 // usage.
 type Stack struct {
 	*Deque
