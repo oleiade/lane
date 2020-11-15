@@ -5,22 +5,6 @@ Lane package provides queue, priority queue, stack and deque data structures
 implementations. Its was designed with simplicity, performance, and concurrent
 usage in mind.
 
-## Installation
-
-```bash
-$ go get gopkg.in/oleiade/lane.v1
-```
-
-## Usage
-
-Import lane using the gopkg url:
-
-```go
-import (
-    lane "gopkg.in/oleiade/lane.v1"
-)
-```
-
 
 #### Priority Queue
 
