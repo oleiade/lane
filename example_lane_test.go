@@ -50,7 +50,7 @@ func ExampleDeque() {
 	firstValue := deque.First()
 	lastValue := deque.Last()
 	fmt.Println(firstValue) // "abc"
-	fmt.Println(lastValue)  // 1
+	fmt.Println(lastValue)  // "do re mi"
 
 	// Okay now let's play with the Pop and Shift
 	// methods to bring the song words together

@@ -45,7 +45,7 @@ func TestQueueDequeue_fulfilled(t *testing.T) {
 		queue.Enqueue(value)
 	}
 
-	// Check that while deuqueing, elements come out in
+	// Check that while dequeuing, elements come out in
 	// their insertion order
 	for i := 0; i < queueSize; i++ {
 		item := queue.Dequeue()
