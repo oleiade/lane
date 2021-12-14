@@ -19,7 +19,7 @@ func TestPriorityQueuePush(t *testing.T) {
 	}{
 		{
 			desc:             "Push on empty PriorityQueue",
-			heuristic: 				Max[int],
+			heuristic: 				Maximum[int],
 			pushItems: 				[]*priorityQueueItem[string]{
 				newPriorityQueueItem("a", 1),
 			},
@@ -31,7 +31,7 @@ func TestPriorityQueuePush(t *testing.T) {
 		},
 		{
 			desc:             "Push on multiple values on max oriented PriorityQueue",
-			heuristic: 				Max[int],
+			heuristic: 				Maximum[int],
 			pushItems: 				[]*priorityQueueItem[string]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
@@ -47,7 +47,7 @@ func TestPriorityQueuePush(t *testing.T) {
 		},
 		{
 			desc:             "Push on multiple values on min oriented PriorityQueue",
-			heuristic: 				Min[int],
+			heuristic: 				Minimum[int],
 			pushItems: 				[]*priorityQueueItem[string]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
@@ -98,7 +98,7 @@ func TestPriorityQueuePop(t *testing.T) {
 	}{
 		{
 			desc:             "Pop from an empty PriorityQueue",
-			heuristic: 				Max[int],
+			heuristic: 				Maximum[int],
 			pushItems: 				[]*priorityQueueItem[string]{},
 			wantOk: 					false,
 			wantValue: 				"",
@@ -110,7 +110,7 @@ func TestPriorityQueuePop(t *testing.T) {
 		},
 		{
 			desc:             "Pop from a filled max oriented PriorityQueue",
-			heuristic: 				Max[int],
+			heuristic: 				Maximum[int],
 			pushItems: 				[]*priorityQueueItem[string]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
@@ -128,7 +128,7 @@ func TestPriorityQueuePop(t *testing.T) {
 		},
 		{
 			desc:             "Pop from a filled min oriented PriorityQueue",
-			heuristic: 				Min[int],
+			heuristic: 				Minimum[int],
 			pushItems: 				[]*priorityQueueItem[string]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
@@ -185,7 +185,7 @@ func TestPriorityQueueHead(t *testing.T) {
 	}{
 		{
 			desc:             "Head of an empty PriorityQueue",
-			heuristic: 				Max[int],
+			heuristic: 				Maximum[int],
 			pushItems: 				[]*priorityQueueItem[string]{},
 			wantOk: 					false,
 			wantValue: 				"",
@@ -197,7 +197,7 @@ func TestPriorityQueueHead(t *testing.T) {
 		},
 		{
 			desc:             "Head of a filled max oriented PriorityQueue",
-			heuristic: 				Max[int],
+			heuristic: 				Maximum[int],
 			pushItems: 				[]*priorityQueueItem[string]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
@@ -216,7 +216,7 @@ func TestPriorityQueueHead(t *testing.T) {
 		},
 		{
 			desc:             "Head of a filled min oriented PriorityQueue",
-			heuristic: 				Min[int],
+			heuristic: 				Minimum[int],
 			pushItems: 				[]*priorityQueueItem[string]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
