@@ -1,20 +1,53 @@
-lane
-====
 
-Lane package provides queue, priority queue, stack and deque data structures
+# Lane
+
+The Lane package provides generic `Queue`, `PriorityQueue`, `Stack` and `Deque` data structures
 implementations. Its was designed with simplicity, performance, and concurrent
 usage in mind.
+## Installation
 
+Using this package requires a working Go environment. [See the install instructions for Go](http://golang.org/doc/install.html).
+
+Go Modules are required when using this package. [See the go blog guide on using Go Modules](https://blog.golang.org/using-go-modules).
+
+### Using `v2` releases
+
+```
+$ go get github.com/oleiade/lane/v2
+```
+
+```go
+...
+import (
+  "github.com/oleiade/lane/v2" // imports as package "cli"
+)
+...
+```
+
+### Using `v1` releases
+
+```
+$ go get github.com/oleiade/lane
+```
+
+```go
+...
+import (
+  "github.com/oleiade/lane"
+)
+...
+```
+## Usage/Examples
 
 #### Priority Queue
 
-Pqueue is a *heap priority queue* data structure implementation. It can be whether max or min ordered, is synchronized and is safe for concurrent operations. It performs insertion and max/min removal in O(log N) time.
+`PriorityQueue` is a *heap priority queue* data structure implementation. It can be either maximum (descending) or minimum (ascending) oriented (ordered). Every operation on a `PriorityQueue` are synchronized and goroutine-safe. It performs `Push` and `Pop` operations in `O(log N)` time.
 
 ##### Example
 
 ```go
-	// Let's create a new max ordered priority queue
-	var priorityQueue *PQueue = NewPQueue(MINPQ)
+// Let's create a new max ordered priority queue
+	priorityQueue := NewMaxPriorityQueue[string]()
 
 	// And push some prioritized content into it
 	priorityQueue.Push("easy as", 3)
@@ -24,18 +57,19 @@ Pqueue is a *heap priority queue* data structure implementation. It can be wheth
 
 	// Now let's take a look at the min element in
 	// the priority queue
-	headValue, headPriority := priorityQueue.Head()
-	fmt.Println(headValue)    // "abc"
-	fmt.Println(headPriority) // 1
+	headValue, headPriority, ok := priorityQueue.Head()
+	if ok {
+		fmt.Println(headValue)    // "abc"
+		fmt.Println(headPriority) // 1
+	}
 
 	// Okay the song order seems to be preserved, let's
 	// roll
 	var jacksonFive []string = make([]string, priorityQueue.Size())
 
 	for i := 0; i < len(jacksonFive); i++ {
-		value, _ := priorityQueue.Pop()
-
-		jacksonFive[i] = value.(string)
+		value, _, _ := priorityQueue.Pop()
+		jacksonFive[i] = value
 	}
 
 	fmt.Println(strings.Join(jacksonFive, " "))
@@ -43,15 +77,15 @@ Pqueue is a *heap priority queue* data structure implementation. It can be wheth
 
 #### Deque
 
-Deque is a *head-tail linked list data* structure implementation. It is based on a doubly-linked list container, so that every operations time complexity is O(1). All operations over an instiated Deque are synchronized and safe for concurrent usage. 
+Deque is a *head-tail linked list data* structure implementation. It is built upon a doubly-linked list container, and every operation on a `Deque` are performed in `O(1)` time complexity. Every operation on a `Deque` are synchronized and goroutine-safe.
 
-Deques can optionally be created with a limited capacity, whereby the return value of the `Append` and `Prepend` return false if the Deque was full and the item was not added.
+Deques can optionally be instantiated with a limited capacity using the dedicated `NewBoundDeque` constructor, whereby the return value of the `Append` and `Prepend` return false if the Deque was full and the item was not added.
 
 ##### Example
 
 ```go
-	// Let's create a new deque data structure
-	var deque *Deque = NewDeque()
+// Let's create a new deque data structure
+	deque := NewDeque[string]()
 
 	// And push some content into it using the Append
 	// and Prepend methods
@@ -62,60 +96,41 @@ Deques can optionally be created with a limited capacity, whereby the return val
 
 	// Now let's take a look at what are the first and
 	// last element stored in the Deque
-	firstValue := deque.First()
-	lastValue := deque.Last()
-	fmt.Println(firstValue) // "abc"
-	fmt.Println(lastValue)  // 1
+	firstValue, ok := deque.First()
+	if ok {
+		fmt.Println(firstValue) // "abc"
+	}
+
+	lastValue, ok := deque.Last()
+	if ok {
+		fmt.Println(lastValue) // 1
+	}
 
 	// Okay now let's play with the Pop and Shift
 	// methods to bring the song words together
 	var jacksonFive []string = make([]string, deque.Size())
 
 	for i := 0; i < len(jacksonFive); i++ {
-		value := deque.Shift()
-		jacksonFive[i] = value.(string)
+		value, ok := deque.Shift()
+		if ok {
+			jacksonFive[i] = value
+		}
 	}
 
 	// abc 123 easy as do re mi
 	fmt.Println(strings.Join(jacksonFive, " "))
 ```
 
-```go
-	// Let's create a new musical quartet
-	quartet := NewCappedDeque(4)
-
-	// List of young hopeful musicians
-	musicians := []string{"John", "Paul", "George", "Ringo", "Stuart"}
-
-	// Add as many of them to the band as we can.
-	for _, name := range musicians {
-		if quartet.Append(name) {
-			fmt.Printf("%s is in the band!\n", name)
-		} else {
-			fmt.Printf("Sorry - %s is not in the band.\n", name)
-		}
-	}
-
-	// Assemble our new rock sensation
-	var beatles = make([]string, quartet.Size())
-
-	for i := 0; i < len(beatles); i++ {
-		beatles[i] = quartet.Shift().(string)
-	}
-
-	fmt.Println("The Beatles are:", strings.Join(beatles, ", "))
-```
-
 #### Queue
 
-Queue is a **FIFO** ( *First in first out* ) data structure implementation. It is based on a deque container and focuses its API on core functionalities: Enqueue, Dequeue, Head, Size, Empty. Every operations time complexity is O(1). As it is implemented using a Deque container, every operations over an instiated Queue are synchronized and safe for concurrent usage.
+`Queue` is a **FIFO** (*First in first out*) data structure implementation. It is built upon a `Deque` container and focuses its API on core functionalities: `Enqueue`, `Dequeue`, `Head`. Every operations' time complexity is O(1). Every operation on a `Queue` are synchronized and goroutine-safe.
 
 ##### Example
 
 ```go
     import (
         "fmt"
-        "github.com/oleiade/lane"
+        "github.com/oleiade/lane/v2"
         "sync"
     )
 
@@ -126,66 +141,73 @@ Queue is a **FIFO** ( *First in first out* ) data structure implementation. It i
 
 
     func main() {
+			// Create a new queue and pretend we're handling starbucks
+			// clients
+			queue := NewQueue[string]()
 
-        queue := lane.NewQueue()
-        queue.Enqueue("grumpyClient")
-        queue.Enqueue("happyClient")
-        queue.Enqueue("ecstaticClient")
+			// Let's add the incoming clients to the queue
+			queue.Enqueue("grumpyClient")
+			queue.Enqueue("happyClient")
+			queue.Enqueue("ecstaticClient")
 
-        var wg sync.WaitGroup
+			fmt.Println(queue.Head()) // grumpyClient
 
-        // Let's handle the clients asynchronously
-        for queue.Head() != nil {
-            item := queue.Dequeue()
+			// Let's handle the clients asynchronously
+			for client, ok := queue.Dequeue(); ok; {
+				go fmt.Println(client)
+			}
 
-            wg.Add(1)
-            go worker(item, &wg)
-        }
-
-        // Wait until everything is printed
-        wg.Wait()
+			// Wait until everything is printed
+			wg.Wait()
     }
 ```
 
 #### Stack
 
-Stack is a **LIFO** ( *Last in first out* ) data structure implementation. It is based on a deque container and focuses its API on core functionalities: Push, Pop, Head, Size, Empty. Every operations time complexity is O(1). As it is implemented using a Deque container, every operations over an instiated Stack are synchronized and safe for concurrent usage.
+`Stack` is a **LIFO** ( *Last in first out* ) data structure implementation. It is built upon a `Deque` container and focuses its API on core functionalities: `Push`, `Pop`, `Head`. Every operation time complexity is O(1). Every operation on a `Stack` are synchronized and goroutine-safe.
 
 ##### Example
 
 ```go
 	// Create a new stack and put some plates over it
-	var stack *Stack = NewStack()
+	stack := NewStack[string]()
 
 	// Let's put some plates on the stack
 	stack.Push("redPlate")
 	stack.Push("bluePlate")
 	stack.Push("greenPlate")
 
-	fmt.Println(stack.Head) // greenPlate
+	fmt.Println(stack.Head()) // greenPlate
 
 	// What's on top of the stack?
-	value := stack.Pop()
-	fmt.Println(value.(string)) // greenPlate
+	value, ok := stack.Pop()
+	if ok {
+		fmt.Println(value) // greenPlate
+	}
 
 	stack.Push("yellowPlate")
-	value = stack.Pop()
-	fmt.Println(value.(string)) // yellowPlate
+
+	value, ok = stack.Pop()
+	if ok {
+		fmt.Println(value) // yellowPlate
+	}
 
 	// What's on top of the stack?
-	value = stack.Pop()
-	fmt.Println(value.(string)) // bluePlate
+	value, ok = stack.Pop()
+	if ok {
+		fmt.Println(value) // bluePlate
+	}
 
 	// What's on top of the stack?
-	value = stack.Pop()
-	fmt.Println(value.(string)) // redPlate
+	value, ok = stack.Pop()
+	if ok {
+		fmt.Println(value) // redPlate
+	}
 ```
-
-
 ## Documentation
 
 For a more detailled overview of lane, please refer to [Documentation](http://godoc.org/github.com/oleiade/lane)
+## License
 
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/oleiade/lane/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+[MIT](https://choosealicense.com/licenses/mit/)
 
