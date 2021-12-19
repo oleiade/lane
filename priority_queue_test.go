@@ -13,18 +13,18 @@ func TestPriorityQueuePush(t *testing.T) {
 	testCases := []struct {
 		desc             string
 		heuristic 			 func(lhs, rhs int) bool
-		pushItems 			 []*priorityQueueItem[string]
+		pushItems 			 []*priorityQueueItem[string, int]
 		wantItemCount    uint
-		wantItems 			 []*priorityQueueItem[string]
+		wantItems 			 []*priorityQueueItem[string, int]
 	}{
 		{
 			desc:             "Push on empty PriorityQueue",
 			heuristic: 				Maximum[int],
-			pushItems: 				[]*priorityQueueItem[string]{
+			pushItems: 				[]*priorityQueueItem[string, int]{
 				newPriorityQueueItem("a", 1),
 			},
 			wantItemCount:         1,
-			wantItems:				[]*priorityQueueItem[string]{
+			wantItems:				[]*priorityQueueItem[string, int]{
 				nil,
 				newPriorityQueueItem("a", 1),
 			},
@@ -32,13 +32,13 @@ func TestPriorityQueuePush(t *testing.T) {
 		{
 			desc:             "Push on multiple values on max oriented PriorityQueue",
 			heuristic: 				Maximum[int],
-			pushItems: 				[]*priorityQueueItem[string]{
+			pushItems: 				[]*priorityQueueItem[string, int]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
 				newPriorityQueueItem("c", 3),
 			},
 			wantItemCount:         3,
-			wantItems:				[]*priorityQueueItem[string]{
+			wantItems:				[]*priorityQueueItem[string, int]{
 				nil,
 				newPriorityQueueItem("c", 3),
 				newPriorityQueueItem("a", 1),
@@ -48,13 +48,13 @@ func TestPriorityQueuePush(t *testing.T) {
 		{
 			desc:             "Push on multiple values on min oriented PriorityQueue",
 			heuristic: 				Minimum[int],
-			pushItems: 				[]*priorityQueueItem[string]{
+			pushItems: 				[]*priorityQueueItem[string, int]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
 				newPriorityQueueItem("c", 3),
 			},
 			wantItemCount:         3,
-			wantItems:				[]*priorityQueueItem[string]{
+			wantItems:				[]*priorityQueueItem[string, int]{
 				nil,
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
@@ -69,7 +69,7 @@ func TestPriorityQueuePush(t *testing.T) {
 		t.Run(testCase.desc, func(t *testing.T) {
 			t.Parallel()
 
-			pqueue := NewPriorityQueue[string](testCase.heuristic)
+			pqueue := NewPriorityQueue[string, int](testCase.heuristic)
 			for _, item := range testCase.pushItems {
 				pqueue.Push(item.value, item.priority)
 			}
@@ -89,29 +89,29 @@ func TestPriorityQueuePop(t *testing.T) {
 	testCases := []struct {
 		desc             string
 		heuristic 			 func(lhs, rhs int) bool
-		pushItems 			 []*priorityQueueItem[string]
+		pushItems 			 []*priorityQueueItem[string, int]
 		wantOk 					 bool
 		wantValue 			 string
 		wantPriority     int
 		wantItemCount    uint
-		wantItems 			 []*priorityQueueItem[string]
+		wantItems 			 []*priorityQueueItem[string, int]
 	}{
 		{
 			desc:             "Pop from an empty PriorityQueue",
 			heuristic: 				Maximum[int],
-			pushItems: 				[]*priorityQueueItem[string]{},
+			pushItems: 				[]*priorityQueueItem[string, int]{},
 			wantOk: 					false,
 			wantValue: 				"",
 			wantPriority: 		0,
 			wantItemCount:    0,
-			wantItems:				[]*priorityQueueItem[string]{
+			wantItems:				[]*priorityQueueItem[string, int]{
 				nil,
 			},
 		},
 		{
 			desc:             "Pop from a filled max oriented PriorityQueue",
 			heuristic: 				Maximum[int],
-			pushItems: 				[]*priorityQueueItem[string]{
+			pushItems: 				[]*priorityQueueItem[string, int]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
 				newPriorityQueueItem("c", 3),
@@ -120,7 +120,7 @@ func TestPriorityQueuePop(t *testing.T) {
 			wantValue: "c",
 			wantPriority: 3,
 			wantItemCount:         2,
-			wantItems:				[]*priorityQueueItem[string]{
+			wantItems:				[]*priorityQueueItem[string, int]{
 				nil,
 				newPriorityQueueItem("b", 2),
 				newPriorityQueueItem("a", 1),
@@ -129,7 +129,7 @@ func TestPriorityQueuePop(t *testing.T) {
 		{
 			desc:             "Pop from a filled min oriented PriorityQueue",
 			heuristic: 				Minimum[int],
-			pushItems: 				[]*priorityQueueItem[string]{
+			pushItems: 				[]*priorityQueueItem[string, int]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
 				newPriorityQueueItem("c", 3),
@@ -138,7 +138,7 @@ func TestPriorityQueuePop(t *testing.T) {
 			wantValue: "a",
 			wantPriority: 1,
 			wantItemCount:         2,
-			wantItems:				[]*priorityQueueItem[string]{
+			wantItems:				[]*priorityQueueItem[string, int]{
 				nil,
 				newPriorityQueueItem("b", 2),
 				newPriorityQueueItem("c", 3),
@@ -152,7 +152,7 @@ func TestPriorityQueuePop(t *testing.T) {
 		t.Run(testCase.desc, func(t *testing.T) {
 			t.Parallel()
 
-			pqueue := NewPriorityQueue[string](testCase.heuristic)
+			pqueue := NewPriorityQueue[string, int](testCase.heuristic)
 			for _, item := range testCase.pushItems {
 				pqueue.Push(item.value, item.priority)
 			}
@@ -176,29 +176,29 @@ func TestPriorityQueueHead(t *testing.T) {
 	testCases := []struct {
 		desc             string
 		heuristic 			 func(lhs, rhs int) bool
-		pushItems 			 []*priorityQueueItem[string]
+		pushItems 			 []*priorityQueueItem[string, int]
 		wantOk 					 bool
 		wantValue 			 string
 		wantPriority     int
 		wantItemCount    uint
-		wantItems 			 []*priorityQueueItem[string]
+		wantItems 			 []*priorityQueueItem[string, int]
 	}{
 		{
 			desc:             "Head of an empty PriorityQueue",
 			heuristic: 				Maximum[int],
-			pushItems: 				[]*priorityQueueItem[string]{},
+			pushItems: 				[]*priorityQueueItem[string, int]{},
 			wantOk: 					false,
 			wantValue: 				"",
 			wantPriority: 		0,
 			wantItemCount:    0,
-			wantItems:				[]*priorityQueueItem[string]{
+			wantItems:				[]*priorityQueueItem[string, int]{
 				nil,
 			},
 		},
 		{
 			desc:             "Head of a filled max oriented PriorityQueue",
 			heuristic: 				Maximum[int],
-			pushItems: 				[]*priorityQueueItem[string]{
+			pushItems: 				[]*priorityQueueItem[string, int]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
 				newPriorityQueueItem("c", 3),
@@ -207,7 +207,7 @@ func TestPriorityQueueHead(t *testing.T) {
 			wantValue: "c",
 			wantPriority: 3,
 			wantItemCount: 3,
-			wantItems:				[]*priorityQueueItem[string]{
+			wantItems:				[]*priorityQueueItem[string, int]{
 				nil,
 				newPriorityQueueItem("c", 3),
 				newPriorityQueueItem("a", 1),
@@ -217,7 +217,7 @@ func TestPriorityQueueHead(t *testing.T) {
 		{
 			desc:             "Head of a filled min oriented PriorityQueue",
 			heuristic: 				Minimum[int],
-			pushItems: 				[]*priorityQueueItem[string]{
+			pushItems: 				[]*priorityQueueItem[string, int]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
 				newPriorityQueueItem("c", 3),
@@ -226,7 +226,7 @@ func TestPriorityQueueHead(t *testing.T) {
 			wantValue: "a",
 			wantPriority: 1,
 			wantItemCount:         3,
-			wantItems:				[]*priorityQueueItem[string]{
+			wantItems:				[]*priorityQueueItem[string, int]{
 				nil,
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
@@ -241,7 +241,7 @@ func TestPriorityQueueHead(t *testing.T) {
 		t.Run(testCase.desc, func(t *testing.T) {
 			t.Parallel()
 
-			pqueue := NewPriorityQueue[string](testCase.heuristic)
+			pqueue := NewPriorityQueue[string, int](testCase.heuristic)
 			for _, item := range testCase.pushItems {
 				pqueue.Push(item.value, item.priority)
 			}
@@ -264,17 +264,17 @@ func TestPriorityQueueSize(t *testing.T) {
 
 	testCases := []struct {
 		desc             string
-		pushItems 			 []*priorityQueueItem[string]
+		pushItems 			 []*priorityQueueItem[string, int]
 		wantValue 			 uint
 	}{
 		{
 			desc:             "Head of an empty PriorityQueue",
-			pushItems: 				[]*priorityQueueItem[string]{},
+			pushItems: 				[]*priorityQueueItem[string, int]{},
 			wantValue: 				0,
 		},
 		{
 			desc:             "Head of a filled max oriented PriorityQueue",
-			pushItems: 				[]*priorityQueueItem[string]{
+			pushItems: 				[]*priorityQueueItem[string, int]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
 				newPriorityQueueItem("c", 3),
@@ -289,7 +289,7 @@ func TestPriorityQueueSize(t *testing.T) {
 		t.Run(testCase.desc, func(t *testing.T) {
 			t.Parallel()
 
-			pqueue := NewMaxPriorityQueue[string]()
+			pqueue := NewMaxPriorityQueue[string, int]()
 			for _, item := range testCase.pushItems {
 				pqueue.Push(item.value, item.priority)
 			}
@@ -306,17 +306,17 @@ func TestPriorityQueueEmpty(t *testing.T) {
 
 	testCases := []struct {
 		desc             string
-		pushItems 			 []*priorityQueueItem[string]
+		pushItems 			 []*priorityQueueItem[string, int]
 		wantValue 			 bool
 	}{
 		{
 			desc:             "Head of an empty PriorityQueue",
-			pushItems: 				[]*priorityQueueItem[string]{},
+			pushItems: 				[]*priorityQueueItem[string, int]{},
 			wantValue: 				true,
 		},
 		{
 			desc:             "Head of a filled max oriented PriorityQueue",
-			pushItems: 				[]*priorityQueueItem[string]{
+			pushItems: 				[]*priorityQueueItem[string, int]{
 				newPriorityQueueItem("a", 1),
 				newPriorityQueueItem("b", 2),
 				newPriorityQueueItem("c", 3),
@@ -331,7 +331,7 @@ func TestPriorityQueueEmpty(t *testing.T) {
 		t.Run(testCase.desc, func(t *testing.T) {
 			t.Parallel()
 
-			pqueue := NewMaxPriorityQueue[string]()
+			pqueue := NewMaxPriorityQueue[string, int]()
 			for _, item := range testCase.pushItems {
 				pqueue.Push(item.value, item.priority)
 			}

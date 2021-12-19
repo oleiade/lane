@@ -5,25 +5,28 @@ import (
 	"sync"
 )
 
-// PQueue is a heap priority queue data structure implementation.
+// PriorityQueue is a heap priority queue data structure implementation.
 //
 // It can be either be minimum (ascending) or maximum (descending) 
-// oriented/ordered. Every operations are synchronized and goroutine-safe.
-type PriorityQueue[T any] struct {
+// oriented/ordered. Its type parameters `T` and `P` respectively 
+// specify the value underlying type, and the priority underlying type.
+//
+// Every operations are synchronized and goroutine-safe.
+type PriorityQueue[T any, P constraints.Ordered] struct {
 	sync.RWMutex
-	items []*priorityQueueItem[T]
+	items []*priorityQueueItem[T, P]
 	itemCount uint
-	comparator func(lhs, rhs int) bool
+	comparator func(lhs, rhs P) bool
 }
 
 // NewPriorityQueue instantiates a new PriorityQueue with the provided comparison heuristic.
 // The package defines the `Max` and `Min` heuristic to define a maximum-oriented or 
 // minimum-oriented heuristic respectively.
-func NewPriorityQueue[T any](heuristic func(lhs, rhs int)bool) *PriorityQueue[T] {
-	items := make([]*priorityQueueItem[T], 1)
+func NewPriorityQueue[T any, P constraints.Ordered](heuristic func(lhs, rhs P)bool) *PriorityQueue[T, P] {
+	items := make([]*priorityQueueItem[T, P], 1)
 	items[0] = nil
 	
-	return &PriorityQueue[T]{
+	return &PriorityQueue[T, P]{
 		items: items,
 		itemCount: 0,
 		comparator: heuristic,
@@ -31,13 +34,13 @@ func NewPriorityQueue[T any](heuristic func(lhs, rhs int)bool) *PriorityQueue[T]
 }
 
 // NewMaxPriorityQueue instantiates a new maximum oriented PriorityQueue.
-func NewMaxPriorityQueue[T any]() *PriorityQueue[T] {
-	return NewPriorityQueue[T](Maximum[int])	
+func NewMaxPriorityQueue[T any, P constraints.Ordered]() *PriorityQueue[T, P] {
+	return NewPriorityQueue[T, P](Maximum[P])
 }
 
 // NewMinPriorityQueue instantiates a new minimum oriented PriorityQueue.
-func NewMinPriorityQueue[T any]() *PriorityQueue[T] {
-	return NewPriorityQueue[T](Minimum[int])	
+func NewMinPriorityQueue[T any, P constraints.Ordered]() *PriorityQueue[T, P] {
+	return NewPriorityQueue[T, P](Minimum[P])
 }
 
 // Maximum returns whether `rhs` is greater than `lhs`.
@@ -58,7 +61,7 @@ func Minimum[T constraints.Ordered](lhs, rhs T) bool {
 
 // Push inserts the value in the PriorityQueue with the provided priority
 // in at most O(log n) time complexity.
-func (pq *PriorityQueue[T]) Push(value T, priority int) {
+func (pq *PriorityQueue[T, P]) Push(value T, priority P) {
 	item := newPriorityQueueItem(value, priority)
 
 	pq.Lock()
@@ -71,7 +74,7 @@ func (pq *PriorityQueue[T]) Push(value T, priority int) {
 // Pop and returns the highest or lowest priority item (depending on the
 // comparison heuristic of your PriorityQueue) from the PriorityQueue in
 // at most O(log n) complexity.
-func (pq *PriorityQueue[T]) Pop() (value T, priority int, ok bool) {
+func (pq *PriorityQueue[T, P]) Pop() (value T, priority P, ok bool) {
 	pq.Lock()
 	defer pq.Unlock()
 
@@ -80,7 +83,7 @@ func (pq *PriorityQueue[T]) Pop() (value T, priority int, ok bool) {
 		return
 	}
 
-	var max *priorityQueueItem[T] = pq.items[1]
+	var max *priorityQueueItem[T, P] = pq.items[1]
 	
 	pq.exch(1, pq.size())
 	pq.items = pq.items[0:pq.size()]
@@ -97,7 +100,7 @@ func (pq *PriorityQueue[T]) Pop() (value T, priority int, ok bool) {
 // Head returns the highest or lowest priority item (depending on
 // the comparison heuristic of your PriorityQueue) from the PriorityQueue
 // in O(1) complexity.
-func (pq *PriorityQueue[T]) Head() (value T, priority int, ok bool) {
+func (pq *PriorityQueue[T, P]) Head() (value T, priority P, ok bool) {
 	pq.RLock()
 	defer pq.RUnlock()
 
@@ -114,27 +117,27 @@ func (pq *PriorityQueue[T]) Head() (value T, priority int, ok bool) {
 }
 
 // Size returns the number of elements present in the PriorityQueue.
-func (pq *PriorityQueue[T]) Size() uint {
+func (pq *PriorityQueue[T, P]) Size() uint {
 	pq.RLock()
 	defer pq.RUnlock()
 	return pq.size()
 }
 
 // Empty returns whether the PriorityQueue is empty.
-func (pq *PriorityQueue[T]) Empty() bool {
+func (pq *PriorityQueue[T, P]) Empty() bool {
 	pq.RLock()
 	defer pq.RUnlock()
 	return pq.size() == 0
 }
 
-func (pq *PriorityQueue[T]) swim(k uint) {
+func (pq *PriorityQueue[T, P]) swim(k uint) {
 	for k > 1 && pq.less(k/2, k) {
 		pq.exch(k/2, k)
 		k = k / 2
 	}
 }
 
-func (pq *PriorityQueue[T]) sink(k uint) {
+func (pq *PriorityQueue[T, P]) sink(k uint) {
 	for uint(2*k) <= pq.size() {
 		var j uint = uint(2 * k)
 
@@ -154,29 +157,29 @@ func (pq *PriorityQueue[T]) sink(k uint) {
 // size is a private method that's not goroutine-safe.
 // It is meant to be called by a method who has already
 // acquired a lock on the PriorityQueue.
-func (pq *PriorityQueue[T]) size() uint {
+func (pq *PriorityQueue[T, P]) size() uint {
 	return pq.itemCount
 }
 
-func (pq *PriorityQueue[T]) less(lhs, rhs uint) bool {
+func (pq *PriorityQueue[T, P]) less(lhs, rhs uint) bool {
 	return pq.comparator(pq.items[lhs].priority, pq.items[rhs].priority)
 }
 
-func (pq *PriorityQueue[T]) exch(lhs, rhs uint) {
-	var tmp *priorityQueueItem[T] = pq.items[lhs]
+func (pq *PriorityQueue[T, P]) exch(lhs, rhs uint) {
+	var tmp *priorityQueueItem[T, P] = pq.items[lhs]
 	pq.items[lhs] = pq.items[rhs]
 	pq.items[rhs] = tmp
 }
 
 // priorityQueueItem is the underlying PriorityQueue item container. 
-type priorityQueueItem[T any] struct {
+type priorityQueueItem[T any, P constraints.Ordered] struct {
 	value T
-	priority int
+	priority P
 }
 
 // newPriorityQueue instantiates a new priorityQueueItem.
-func newPriorityQueueItem[T any](value T, priority int) *priorityQueueItem[T] {
-	return &priorityQueueItem[T]{
+func newPriorityQueueItem[T any, P constraints.Ordered](value T, priority P) *priorityQueueItem[T, P] {
+	return &priorityQueueItem[T, P]{
 		value: value,
 		priority: priority,
 	}

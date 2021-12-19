@@ -7,7 +7,7 @@ import (
 
 func ExamplePriorityQueue() {
 	// Let's create a new max ordered priority queue
-	priorityQueue := NewMaxPriorityQueue[string]()
+	priorityQueue := NewMaxPriorityQueue[string, int]()
 
 	// And push some prioritized content into it
 	priorityQueue.Push("easy as", 3)
