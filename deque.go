@@ -1,148 +1,200 @@
 package lane
 
 import (
-	"container/list"
 	"sync"
 )
 
+type Dequer[T any] interface {
+	Deque[T] | BoundDeque[T]
+}
+
 // Deque is a head-tail linked list data structure implementation.
-// It is based on a doubly linked list container, so that every
-// operations time complexity is O(1).
-//
-// every operations over an instiated Deque are synchronized and
-// safe for concurrent usage.
-type Deque struct {
+//  
+// The Deque's implementation is built upon a doubly linked list 
+// container, so that every operations' time complexity is O(1) (N.B:
+// linked-list are not CPU-cache friendly).
+// Every operation on a Deque are goroutine-safe and ready
+// for concurrent usage.
+type Deque[T any] struct {
 	sync.RWMutex
-	container *list.List
-	capacity  int
+
+	// container is the underlying storage container
+	// of deque's elements.
+	container *List[T]
 }
 
-// NewDeque creates a Deque.
-func NewDeque() *Deque {
-	return NewCappedDeque(-1)
-}
+// NewDeque produces a new Deque instance.
+func NewDeque[T any](items ...T) *Deque[T] {
+	container := New[T]()
 
-// NewCappedDeque creates a Deque with the specified capacity limit.
-func NewCappedDeque(capacity int) *Deque {
-	return &Deque{
-		container: list.New(),
-		capacity:  capacity,
+	for _, item := range items {
+		container.PushBack(item)
+	}
+
+	return &Deque[T]{
+		container: container,
 	}
 }
 
-// Append inserts element at the back of the Deque in a O(1) time complexity,
-// returning true if successful or false if the deque is at capacity.
-func (s *Deque) Append(item interface{}) bool {
-	s.Lock()
-	defer s.Unlock()
+// Append inserts item at the back of the Deque in a O(1) time complexity.
+func (d *Deque[T]) Append(item T) {
+	d.Lock()
+	defer d.Unlock()
 
-	if s.capacity < 0 || s.container.Len() < s.capacity {
-		s.container.PushBack(item)
-		return true
+	d.container.PushBack(item)
+}
+
+// Prepend inserts item at the Deque's front in a O(1) time complexity.
+func (d *Deque[T]) Prepend(item T) {
+	d.Lock()
+	defer d.Unlock()
+
+	d.container.PushFront(item)
+}
+
+// Pop removes and returns the back element of the Deque in O(1) time complexity.
+func (d *Deque[T]) Pop() (item T, ok bool) {
+	d.Lock()
+	defer d.Unlock()
+
+	var lastElement *Element[T] = d.container.Back()
+	if lastElement != nil {
+		item = d.container.Remove(lastElement)
+		ok = true
 	}
 
-	return false
+	return
 }
 
-// Prepend inserts element at the Deques front in a O(1) time complexity,
-// returning true if successful or false if the deque is at capacity.
-func (s *Deque) Prepend(item interface{}) bool {
-	s.Lock()
-	defer s.Unlock()
+// Shift removes and returns the front element of the Deque in O(1) time complexity.
+func (d *Deque[T]) Shift() (item T, ok bool) {
+	d.Lock()
+	defer d.Unlock()
 
-	if s.capacity < 0 || s.container.Len() < s.capacity {
-		s.container.PushFront(item)
-		return true
+	var firstElement *Element[T] = d.container.Front()
+	if firstElement != nil {
+		item = d.container.Remove(firstElement)
+		ok = true
 	}
 
-	return false
+	return
 }
 
-// Pop removes the last element of the deque in a O(1) time complexity
-func (s *Deque) Pop() interface{} {
-	s.Lock()
-	defer s.Unlock()
+// First returns the first value stored in the Deque in O(1) time complexity.
+func (d *Deque[T]) First() (item T, ok bool) {
+	d.RLock()
+	defer d.RUnlock()
 
-	var item interface{} = nil
-	var lastContainerItem *list.Element = nil
-
-	lastContainerItem = s.container.Back()
-	if lastContainerItem != nil {
-		item = s.container.Remove(lastContainerItem)
+	var frontItem *Element[T] = d.container.Front()
+	if frontItem != nil {
+		item = frontItem.Value
+		ok = true
 	}
 
-	return item
+	return
 }
 
-// Shift removes the first element of the deque in a O(1) time complexity
-func (s *Deque) Shift() interface{} {
-	s.Lock()
-	defer s.Unlock()
+// Last returns the last value stored in the Deque in O(1) time complexity.
+func (d *Deque[T]) Last() (item T, ok bool) {
+	d.RLock()
+	defer d.RUnlock()
 
-	var item interface{} = nil
-	var firstContainerItem *list.Element = nil
-
-	firstContainerItem = s.container.Front()
-	if firstContainerItem != nil {
-		item = s.container.Remove(firstContainerItem)
+	var backItem *Element[T] = d.container.Back()
+	if backItem != nil {
+		item = backItem.Value
+		ok = true
 	}
 
-	return item
+	return
 }
 
-// First returns the first value stored in the deque in a O(1) time complexity
-func (s *Deque) First() interface{} {
-	s.RLock()
-	defer s.RUnlock()
+// Size returns the Deque's size.
+func (d *Deque[T]) Size() uint {
+	d.RLock()
+	defer d.RUnlock()
 
-	item := s.container.Front()
-	if item != nil {
-		return item.Value
-	} else {
-		return nil
+	return uint(d.container.Len())
+}
+
+// Empty checks if the deque is empty.
+func (d *Deque[T]) Empty() bool {
+	d.RLock()
+	defer d.RUnlock()
+
+	return d.container.Len() == 0
+}
+
+// Capaciter is an interface type providing operations
+// related to capacity management.
+type Capaciter interface {
+	// Capacity returns the current capacity of the underlying type implementation.
+	Capacity() int
+
+	// IsFull returns whether the implementing type instance is full. 
+	IsFull() bool
+}
+
+// BoundDeque is a head-tail linked list data structure implementation
+// with a user-defined capacity: any operation leading to the size
+// of the container to overflow its capacity will fail.
+//  
+// The BoundDeque's implementation is built upon a doubly linked list 
+// container, so that every operations' time complexity is O(1) (N.B:
+// linked-list are not CPU-cache friendly).
+// Every operation on a BoundDeque are goroutine-safe and ready
+// for concurrent usage.
+type BoundDeque[T any] struct {
+	Deque[T]
+
+	// capacity defines an upper bound limit for the BoundDeque's size.
+	capacity uint
+}
+
+// NewBoundDeque produces a new BoundDeque instance with the provided
+// capacity.
+func NewBoundDeque[T any](capacity uint, values...T) *BoundDeque[T] {
+	return &BoundDeque[T]{
+		Deque: *NewDeque[T](values...),
+		capacity: capacity,
 	}
 }
 
-// Last returns the last value stored in the deque in a O(1) time complexity
-func (s *Deque) Last() interface{} {
-	s.RLock()
-	defer s.RUnlock()
+// Capacity returns the BoundDeque's capacity.
+func (bd *BoundDeque[T]) Capacity() uint {
+	return bd.capacity
+}
 
-	item := s.container.Back()
-	if item != nil {
-		return item.Value
-	} else {
-		return nil
+// Full checks if the BoundDeque is full.
+func (bd *BoundDeque[T]) Full() bool {
+	return bd.container.Len() >= bd.capacity
+}
+
+// Append inserts item at the back of the BoundDeque in a O(1) time complexity.
+// If the BoundDeque's capacity disallows the insertion, Append returns false.
+func (bd *BoundDeque[T]) Append(item T) bool {
+	bd.Lock()
+	defer bd.Unlock()
+
+	if bd.Full() {
+		return false
 	}
+
+	bd.container.PushBack(item)
+
+	return true
 }
 
-// Size returns the actual deque size
-func (s *Deque) Size() int {
-	s.RLock()
-	defer s.RUnlock()
+// Prepend inserts item at the BoundDeque's front in a O(1) time complexity.
+// If the BoundDeque's capacity disallows the insertion, Prepend returns false.
+func (bd *BoundDeque[T]) Prepend(item T) bool {
+	bd.Lock()
+	defer bd.Unlock()
 
-	return s.container.Len()
-}
+	if bd.Full() {
+		return false
+	}
 
-// Capacity returns the capacity of the deque, or -1 if unlimited
-func (s *Deque) Capacity() int {
-	s.RLock()
-	defer s.RUnlock()
-	return s.capacity
-}
+	bd.container.PushFront(item)
 
-// Empty checks if the deque is empty
-func (s *Deque) Empty() bool {
-	s.RLock()
-	defer s.RUnlock()
-
-	return s.container.Len() == 0
-}
-
-// Full checks if the deque is full
-func (s *Deque) Full() bool {
-	s.RLock()
-	defer s.RUnlock()
-
-	return s.capacity >= 0 && s.container.Len() >= s.capacity
+	return true
 }

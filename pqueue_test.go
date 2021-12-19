@@ -1,249 +1,344 @@
 package lane
 
 import (
-	"reflect"
-	"strconv"
-	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestMaxPQueue_init(t *testing.T) {
-	pqueue := NewPQueue(MAXPQ)
 
-	assert(
-		t,
-		len(pqueue.items) == 1,
-		"len(pqueue.items) == %d; want %d", len(pqueue.items), 1,
-	)
+func TestPriorityQueuePush(t *testing.T) {
+	t.Parallel()
 
-	assert(
-		t,
-		pqueue.Size() == 0,
-		"pqueue.Size() = %d; want %d", pqueue.Size(), 0,
-	)
-
-	assert(
-		t,
-		pqueue.items[0] == nil,
-		"pqueue.items[0] = %v; want %v", pqueue.items[0], nil,
-	)
-
-	assert(
-		t,
-		reflect.ValueOf(pqueue.comparator).Pointer() == reflect.ValueOf(max).Pointer(),
-		"pqueue.comparator != max",
-	)
-}
-
-func TestMinPQueue_init(t *testing.T) {
-	pqueue := NewPQueue(MINPQ)
-
-	assert(
-		t,
-		len(pqueue.items) == 1,
-		"len(pqueue.items) = %d; want %d", len(pqueue.items), 1,
-	)
-
-	assert(
-		t,
-		pqueue.Size() == 0,
-		"pqueue.Size() = %d; want %d", pqueue.Size(), 0,
-	)
-
-	assert(
-		t,
-		pqueue.items[0] == nil,
-		"pqueue.items[0] = %v; want %v", pqueue.items[0], nil,
-	)
-
-	assert(
-		t,
-		reflect.ValueOf(pqueue.comparator).Pointer() == reflect.ValueOf(min).Pointer(),
-		"pqueue.comparator != min",
-	)
-}
-
-func TestMaxPQueuePushAndPop_protects_max_order(t *testing.T) {
-	pqueue := NewPQueue(MAXPQ)
-	pqueueSize := 100
-
-	// Populate the test priority queue with dummy elements
-	// in asc ordered.
-	for i := 0; i < pqueueSize; i++ {
-		var value string = strconv.Itoa(i)
-		var priority int = i
-
-		pqueue.Push(value, priority)
+	testCases := []struct {
+		desc             string
+		heuristic 			 func(lhs, rhs int) bool
+		pushItems 			 []*priorityQueueItem[string]
+		wantItemCount    uint
+		wantItems 			 []*priorityQueueItem[string]
+	}{
+		{
+			desc:             "Push on empty PriorityQueue",
+			heuristic: 				Maximum[int],
+			pushItems: 				[]*priorityQueueItem[string]{
+				newPriorityQueueItem("a", 1),
+			},
+			wantItemCount:         1,
+			wantItems:				[]*priorityQueueItem[string]{
+				nil,
+				newPriorityQueueItem("a", 1),
+			},
+		},
+		{
+			desc:             "Push on multiple values on max oriented PriorityQueue",
+			heuristic: 				Maximum[int],
+			pushItems: 				[]*priorityQueueItem[string]{
+				newPriorityQueueItem("a", 1),
+				newPriorityQueueItem("b", 2),
+				newPriorityQueueItem("c", 3),
+			},
+			wantItemCount:         3,
+			wantItems:				[]*priorityQueueItem[string]{
+				nil,
+				newPriorityQueueItem("c", 3),
+				newPriorityQueueItem("a", 1),
+				newPriorityQueueItem("b", 2),
+			},
+		},
+		{
+			desc:             "Push on multiple values on min oriented PriorityQueue",
+			heuristic: 				Minimum[int],
+			pushItems: 				[]*priorityQueueItem[string]{
+				newPriorityQueueItem("a", 1),
+				newPriorityQueueItem("b", 2),
+				newPriorityQueueItem("c", 3),
+			},
+			wantItemCount:         3,
+			wantItems:				[]*priorityQueueItem[string]{
+				nil,
+				newPriorityQueueItem("a", 1),
+				newPriorityQueueItem("b", 2),
+				newPriorityQueueItem("c", 3),
+			},
+		},
 	}
 
-	containerIndex := 1 // binary heap are 1 indexed
-	for i := 99; i >= 0; i-- {
-		var expectedValue string = strconv.Itoa(i)
-		var expectedPriority int = i
+	for _, testCase := range testCases {
+		testCase := testCase
 
-		// Avoiding testing arithmetics headaches by using the pop function directly
-		value, priority := pqueue.Pop()
-		assert(
-			t,
-			value == expectedValue,
-			"value = %v; want %v", containerIndex, value, expectedValue,
-		)
-		assert(
-			t,
-			priority == expectedPriority,
-			"priority = %v; want %v", containerIndex, priority, expectedValue,
-		)
+		t.Run(testCase.desc, func(t *testing.T) {
+			t.Parallel()
 
-		containerIndex++
+			pqueue := NewPriorityQueue[string](testCase.heuristic)
+			for _, item := range testCase.pushItems {
+				pqueue.Push(item.value, item.priority)
+			}
+
+			gotItemCount := pqueue.itemCount
+			gotItems := pqueue.items
+
+			assert.Equal(t, testCase.wantItemCount, gotItemCount)
+			assert.Equal(t, testCase.wantItems, gotItems)
+		})
 	}
 }
 
-func TestMaxPQueuePushAndPop_concurrently_protects_max_order(t *testing.T) {
-	var wg sync.WaitGroup
+func TestPriorityQueuePop(t *testing.T) {
+	t.Parallel()
 
-	pqueue := NewPQueue(MAXPQ)
-	pqueueSize := 100
-
-	// Populate the test priority queue with dummy elements
-	// in asc ordered.
-	for i := 0; i < pqueueSize; i++ {
-		wg.Add(1)
-
-		go func(i int) {
-			defer wg.Done()
-
-			var value string = strconv.Itoa(i)
-			var priority int = i
-			pqueue.Push(value, priority)
-		}(i)
+	testCases := []struct {
+		desc             string
+		heuristic 			 func(lhs, rhs int) bool
+		pushItems 			 []*priorityQueueItem[string]
+		wantOk 					 bool
+		wantValue 			 string
+		wantPriority     int
+		wantItemCount    uint
+		wantItems 			 []*priorityQueueItem[string]
+	}{
+		{
+			desc:             "Pop from an empty PriorityQueue",
+			heuristic: 				Maximum[int],
+			pushItems: 				[]*priorityQueueItem[string]{},
+			wantOk: 					false,
+			wantValue: 				"",
+			wantPriority: 		0,
+			wantItemCount:    0,
+			wantItems:				[]*priorityQueueItem[string]{
+				nil,
+			},
+		},
+		{
+			desc:             "Pop from a filled max oriented PriorityQueue",
+			heuristic: 				Maximum[int],
+			pushItems: 				[]*priorityQueueItem[string]{
+				newPriorityQueueItem("a", 1),
+				newPriorityQueueItem("b", 2),
+				newPriorityQueueItem("c", 3),
+			},
+			wantOk: true,
+			wantValue: "c",
+			wantPriority: 3,
+			wantItemCount:         2,
+			wantItems:				[]*priorityQueueItem[string]{
+				nil,
+				newPriorityQueueItem("b", 2),
+				newPriorityQueueItem("a", 1),
+			},
+		},
+		{
+			desc:             "Pop from a filled min oriented PriorityQueue",
+			heuristic: 				Minimum[int],
+			pushItems: 				[]*priorityQueueItem[string]{
+				newPriorityQueueItem("a", 1),
+				newPriorityQueueItem("b", 2),
+				newPriorityQueueItem("c", 3),
+			},
+			wantOk: true,
+			wantValue: "a",
+			wantPriority: 1,
+			wantItemCount:         2,
+			wantItems:				[]*priorityQueueItem[string]{
+				nil,
+				newPriorityQueueItem("b", 2),
+				newPriorityQueueItem("c", 3),
+			},
+		},
 	}
 
-	wg.Wait()
+	for _, testCase := range testCases {
+		testCase := testCase
 
-	containerIndex := 1 // binary heap are 1 indexed
-	for i := 99; i >= 0; i-- {
-		var expectedValue string = strconv.Itoa(i)
-		var expectedPriority int = i
+		t.Run(testCase.desc, func(t *testing.T) {
+			t.Parallel()
 
-		// Avoiding testing arithmetics headaches by using the pop function directly
-		value, priority := pqueue.Pop()
-		assert(
-			t,
-			value == expectedValue,
-			"value = %v; want %v", containerIndex, value, expectedValue,
-		)
-		assert(
-			t,
-			priority == expectedPriority,
-			"priority = %v; want %v", containerIndex, priority, expectedValue,
-		)
+			pqueue := NewPriorityQueue[string](testCase.heuristic)
+			for _, item := range testCase.pushItems {
+				pqueue.Push(item.value, item.priority)
+			}
 
-		containerIndex++
-	}
-}
+			gotValue, gotPriority, gotOk := pqueue.Pop()
+			gotItemCount := pqueue.itemCount
+			gotItems := pqueue.items
 
-func TestMinPQueuePushAndPop_protects_min_order(t *testing.T) {
-	pqueue := NewPQueue(MINPQ)
-	pqueueSize := 100
-
-	// Populate the test priority queue with dummy elements
-	// in asc ordered.
-	for i := 0; i < pqueueSize; i++ {
-		var value string = strconv.Itoa(i)
-		var priority int = i
-
-		pqueue.Push(value, priority)
-	}
-
-	for i := 0; i < pqueueSize; i++ {
-		var expectedValue string = strconv.Itoa(i)
-		var expectedPriority int = i
-
-		// Avoiding testing arithmetics headaches by using the pop function directly
-		value, priority := pqueue.Pop()
-		assert(
-			t,
-			value == expectedValue,
-			"value = %v; want %v", value, expectedValue,
-		)
-		assert(
-			t,
-			priority == expectedPriority,
-			"priority = %v; want %v", priority, expectedValue,
-		)
-	}
-}
-
-func TestMinPQueuePushAndPop_concurrently_protects_min_order(t *testing.T) {
-	pqueue := NewPQueue(MINPQ)
-	pqueueSize := 100
-
-	var wg sync.WaitGroup
-
-	// Populate the test priority queue with dummy elements
-	// in asc ordered.
-	for i := 0; i < pqueueSize; i++ {
-		wg.Add(1)
-
-		go func(i int) {
-			defer wg.Done()
-
-			var value string = strconv.Itoa(i)
-			var priority int = i
-
-			pqueue.Push(value, priority)
-		}(i)
-	}
-
-	wg.Wait()
-
-	for i := 0; i < pqueueSize; i++ {
-		var expectedValue string = strconv.Itoa(i)
-		var expectedPriority int = i
-
-		// Avoiding testing arithmetics headaches by using the pop function directly
-		value, priority := pqueue.Pop()
-		assert(
-			t,
-			value == expectedValue,
-			"value = %v; want %v", value, expectedValue,
-		)
-		assert(
-			t,
-			priority == expectedPriority,
-			"priority = %v; want %v", priority, expectedValue,
-		)
+			assert.Equal(t, testCase.wantOk, gotOk)
+			assert.Equal(t, testCase.wantValue, gotValue)
+			assert.Equal(t, testCase.wantPriority, gotPriority)
+			assert.Equal(t, testCase.wantItemCount, gotItemCount)
+			assert.Equal(t, testCase.wantItems, gotItems)
+		})
 	}
 }
 
-func TestMaxPQueueHead_returns_max_element(t *testing.T) {
-	pqueue := NewPQueue(MAXPQ)
+func TestPriorityQueueHead(t *testing.T) {
+	t.Parallel()
 
-	pqueue.Push("1", 1)
-	pqueue.Push("2", 2)
+	testCases := []struct {
+		desc             string
+		heuristic 			 func(lhs, rhs int) bool
+		pushItems 			 []*priorityQueueItem[string]
+		wantOk 					 bool
+		wantValue 			 string
+		wantPriority     int
+		wantItemCount    uint
+		wantItems 			 []*priorityQueueItem[string]
+	}{
+		{
+			desc:             "Head of an empty PriorityQueue",
+			heuristic: 				Maximum[int],
+			pushItems: 				[]*priorityQueueItem[string]{},
+			wantOk: 					false,
+			wantValue: 				"",
+			wantPriority: 		0,
+			wantItemCount:    0,
+			wantItems:				[]*priorityQueueItem[string]{
+				nil,
+			},
+		},
+		{
+			desc:             "Head of a filled max oriented PriorityQueue",
+			heuristic: 				Maximum[int],
+			pushItems: 				[]*priorityQueueItem[string]{
+				newPriorityQueueItem("a", 1),
+				newPriorityQueueItem("b", 2),
+				newPriorityQueueItem("c", 3),
+			},
+			wantOk: true,
+			wantValue: "c",
+			wantPriority: 3,
+			wantItemCount: 3,
+			wantItems:				[]*priorityQueueItem[string]{
+				nil,
+				newPriorityQueueItem("c", 3),
+				newPriorityQueueItem("a", 1),
+				newPriorityQueueItem("b", 2),
+			},
+		},
+		{
+			desc:             "Head of a filled min oriented PriorityQueue",
+			heuristic: 				Minimum[int],
+			pushItems: 				[]*priorityQueueItem[string]{
+				newPriorityQueueItem("a", 1),
+				newPriorityQueueItem("b", 2),
+				newPriorityQueueItem("c", 3),
+			},
+			wantOk: true,
+			wantValue: "a",
+			wantPriority: 1,
+			wantItemCount:         3,
+			wantItems:				[]*priorityQueueItem[string]{
+				nil,
+				newPriorityQueueItem("a", 1),
+				newPriorityQueueItem("b", 2),
+				newPriorityQueueItem("c", 3),
+			},
+		},
+	}
 
-	value, priority := pqueue.Head()
+	for _, testCase := range testCases {
+		testCase := testCase
 
-	// First element of the binary heap is always left empty, so container
-	// size is the number of elements actually stored + 1
-	assert(t, len(pqueue.items) == 3, "len(pqueue.items) = %d; want %d", len(pqueue.items), 3)
+		t.Run(testCase.desc, func(t *testing.T) {
+			t.Parallel()
 
-	assert(t, value == "2", "pqueue.Head().value = %v; want %v", value, "2")
-	assert(t, priority == 2, "pqueue.Head().priority = %d; want %d", priority, 2)
+			pqueue := NewPriorityQueue[string](testCase.heuristic)
+			for _, item := range testCase.pushItems {
+				pqueue.Push(item.value, item.priority)
+			}
+
+			gotValue, gotPriority, gotOk := pqueue.Head()
+			gotItemCount := pqueue.itemCount
+			gotItems := pqueue.items
+
+			assert.Equal(t, testCase.wantOk, gotOk)
+			assert.Equal(t, testCase.wantValue, gotValue)
+			assert.Equal(t, testCase.wantPriority, gotPriority)
+			assert.Equal(t, testCase.wantItemCount, gotItemCount)
+			assert.Equal(t, testCase.wantItems, gotItems)
+		})
+	}
 }
 
-func TestMinPQueueHead_returns_min_element(t *testing.T) {
-	pqueue := NewPQueue(MINPQ)
+func TestPriorityQueueSize(t *testing.T) {
+	t.Parallel()
 
-	pqueue.Push("1", 1)
-	pqueue.Push("2", 2)
+	testCases := []struct {
+		desc             string
+		pushItems 			 []*priorityQueueItem[string]
+		wantValue 			 uint
+	}{
+		{
+			desc:             "Head of an empty PriorityQueue",
+			pushItems: 				[]*priorityQueueItem[string]{},
+			wantValue: 				0,
+		},
+		{
+			desc:             "Head of a filled max oriented PriorityQueue",
+			pushItems: 				[]*priorityQueueItem[string]{
+				newPriorityQueueItem("a", 1),
+				newPriorityQueueItem("b", 2),
+				newPriorityQueueItem("c", 3),
+			},
+			wantValue: 3,
+		},
+	}
 
-	value, priority := pqueue.Head()
+	for _, testCase := range testCases {
+		testCase := testCase
 
-	// First element of the binary heap is always left empty, so container
-	// size is the number of elements actually stored + 1
-	assert(t, len(pqueue.items) == 3, "len(pqueue.items) = %d; want %d", len(pqueue.items), 3)
+		t.Run(testCase.desc, func(t *testing.T) {
+			t.Parallel()
 
-	assert(t, value == "1", "pqueue.Head().value = %v; want %v", value, "1")
-	assert(t, priority == 1, "pqueue.Head().priority = %d; want %d", priority, 1)
+			pqueue := NewMaxPriorityQueue[string]()
+			for _, item := range testCase.pushItems {
+				pqueue.Push(item.value, item.priority)
+			}
+
+			gotValue := pqueue.Size()
+
+			assert.Equal(t, testCase.wantValue, gotValue)
+		})
+	}
+}
+
+func TestPriorityQueueEmpty(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		desc             string
+		pushItems 			 []*priorityQueueItem[string]
+		wantValue 			 bool
+	}{
+		{
+			desc:             "Head of an empty PriorityQueue",
+			pushItems: 				[]*priorityQueueItem[string]{},
+			wantValue: 				true,
+		},
+		{
+			desc:             "Head of a filled max oriented PriorityQueue",
+			pushItems: 				[]*priorityQueueItem[string]{
+				newPriorityQueueItem("a", 1),
+				newPriorityQueueItem("b", 2),
+				newPriorityQueueItem("c", 3),
+			},
+			wantValue: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		testCase := testCase
+
+		t.Run(testCase.desc, func(t *testing.T) {
+			t.Parallel()
+
+			pqueue := NewMaxPriorityQueue[string]()
+			for _, item := range testCase.pushItems {
+				pqueue.Push(item.value, item.priority)
+			}
+
+			gotValue := pqueue.Empty()
+
+			assert.Equal(t, testCase.wantValue, gotValue)
+		})
+	}
 }
