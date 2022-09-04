@@ -33,6 +33,10 @@ func ExamplePriorityQueue() {
 	}
 
 	fmt.Println(strings.Join(jacksonFive, " "))
+	// Output:
+	// do re mi
+	// 4
+	// do re mi easy as 123 abc
 }
 
 func ExampleDeque() {
@@ -71,6 +75,10 @@ func ExampleDeque() {
 
 	// abc 123 easy as do re mi
 	fmt.Println(strings.Join(jacksonFive, " "))
+	// Output:
+	// abc
+	// do re mi
+	// abc 123 easy as do re mi
 }
 
 func ExampleQueue() {
@@ -86,9 +94,20 @@ func ExampleQueue() {
 	fmt.Println(queue.Head()) // grumpyClient
 
 	// Let's handle the clients asynchronously
-	for client, ok := queue.Dequeue(); ok; {
-		go fmt.Println(client)
+	for {
+		client, ok := queue.Dequeue()
+		if !ok {
+			break
+		}
+
+		fmt.Println(client)
 	}
+
+	// Output:
+	// grumpyClient true
+	// grumpyClient
+	// happyClient
+	// ecstaticClient
 }
 
 func ExampleStack() {
@@ -126,4 +145,11 @@ func ExampleStack() {
 	if ok {
 		fmt.Println(value) // redPlate
 	}
+
+	// Output:
+	// greenPlate true
+	// greenPlate
+	// yellowPlate
+	// bluePlate
+	// redPlate
 }

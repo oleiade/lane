@@ -71,7 +71,7 @@ import (
 
 ```go
 // Let's create a new max ordered priority queue
-priorityQueue := NewMaxPriorityQueue[string]()
+priorityQueue := lane.NewMaxPriorityQueue[string, int]()
 
 // And push some prioritized content into it
 priorityQueue.Push("easy as", 3)
@@ -82,14 +82,14 @@ priorityQueue.Push("abc", 1)
 // Now let's take a look at the min element in
 // the priority queue
 headValue, headPriority, ok := priorityQueue.Head()
-if okay {
-    fmt.Println(headValue) // "abc"
+if ok {
+    fmt.Println(headValue)    // "abc"
     fmt.Println(headPriority) // 1
 }
 
-// okay, the song order seems to be preserved; let's
+// Okay the song order seems to be preserved, let's
 // roll
-var jacksonFive []string = make([]string, priorityQueue.Size())
+jacksonFive := make([]string, priorityQueue.Size())
 
 for i := 0; i < len(jacksonFive); i++ {
     value, _, _ := priorityQueue.Pop()
@@ -109,7 +109,7 @@ Deques can optionally be instantiated with a limited capacity using the dedicate
 
 ```go
 // Let's create a new deque data structure
-deque := NewDeque[string]()
+deque := lane.NewDeque[string]()
 
 // And push some content into it using the Append
 // and Prepend methods
@@ -121,7 +121,7 @@ deque.Prepend("abc")
 // Now let's take a look at what are the first and
 // last element stored in the Deque
 firstValue, ok := deque.First()
-if okay {
+if ok {
     fmt.Println(firstValue) // "abc"
 }
 
@@ -130,13 +130,13 @@ if ok {
     fmt.Println(lastValue) // 1
 }
 
-//okay, now let's play with the Pop and Shift
+// Okay now let's play with the Pop and Shift
 // methods to bring the song words together
-var jacksonFive []string = make([]string, deque.Size())
+jacksonFive := make([]string, deque.Size())
 
 for i := 0; i < len(jacksonFive); i++ {
     value, ok := deque.Shift()
-    if okay {
+    if ok {
         jacksonFive[i] = value
     }
 }
@@ -152,37 +152,25 @@ fmt.Println(strings.Join(jacksonFive, " "))
 #### Queue Example
 
 ```go
-import (
-"fmt"
-"github.com/oleiade/lane/v2"
-"sync"
-)
+// Create a new queue and pretend we're handling starbucks
+// clients
+queue := lane.NewQueue[string]()
 
-func worker(item interface{}, wg *sync.WaitGroup) {
-    fmt.Println(item)
-    wg.Done()
-}
+// Let's add the incoming clients to the queue
+queue.Enqueue("grumpyClient")
+queue.Enqueue("happyClient")
+queue.Enqueue("ecstaticClient")
 
+fmt.Println(queue.Head()) // grumpyClient
 
-func main() {
-    // Create a new queue and pretend we're handling starbucks
-    // clients
-    queue := NewQueue[string]()
-
-    // Let's add the incoming clients to the queue
-    queue.Enqueue("grumpyClient")
-    queue.Enqueue("happyClient")
-    queue.Enqueue("ecstaticClient")
-
-    fmt.Println(queue.Head()) // grumpyClient
-
-    // Let's handle the clients asynchronously
-    for client, okay:= queue.Dequeue(); ok; {
-        go fmt.Println(client)
+// Let's handle the clients asynchronously
+for {
+    client, ok := queue.Dequeue()
+    if !ok {
+        break
     }
 
-    // Wait until everything is printed
-    wg.Wait()
+    fmt.Println(client)
 }
 ```
 
@@ -193,8 +181,7 @@ func main() {
 #### Stack Example
 
 ```go
-// Create a new stack and put some plates over it
-stack := NewStack[string]()
+stack := lane.NewStack[string]()
 
 // Let's put some plates on the stack
 stack.Push("redPlate")
@@ -204,27 +191,27 @@ stack.Push("greenPlate")
 fmt.Println(stack.Head()) // greenPlate
 
 // What's on top of the stack?
-value, okay:= stack.Pop()
-if okay {
+value, ok := stack.Pop()
+if ok {
     fmt.Println(value) // greenPlate
 }
 
 stack.Push("yellowPlate")
 
 value, ok = stack.Pop()
-if okay {
+if ok {
     fmt.Println(value) // yellowPlate
 }
 
 // What's on top of the stack?
 value, ok = stack.Pop()
-if okay {
+if ok {
     fmt.Println(value) // bluePlate
 }
 
 // What's on top of the stack?
 value, ok = stack.Pop()
-if okay {
+if ok {
     fmt.Println(value) // redPlate
 }
 ```
