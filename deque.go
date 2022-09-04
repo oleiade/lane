@@ -4,13 +4,14 @@ import (
 	"sync"
 )
 
+// Dequer is the interface that wraps the basic Deque operations.
 type Dequer[T any] interface {
 	Deque[T] | BoundDeque[T]
 }
 
 // Deque is a head-tail linked list data structure implementation.
-//  
-// The Deque's implementation is built upon a doubly linked list 
+//
+// The Deque's implementation is built upon a doubly linked list
 // container, so that every operations' time complexity is O(1) (N.B:
 // linked-list are not CPU-cache friendly).
 // Every operation on a Deque are goroutine-safe and ready
@@ -57,7 +58,7 @@ func (d *Deque[T]) Pop() (item T, ok bool) {
 	d.Lock()
 	defer d.Unlock()
 
-	var lastElement *Element[T] = d.container.Back()
+	lastElement := d.container.Back()
 	if lastElement != nil {
 		item = d.container.Remove(lastElement)
 		ok = true
@@ -71,7 +72,7 @@ func (d *Deque[T]) Shift() (item T, ok bool) {
 	d.Lock()
 	defer d.Unlock()
 
-	var firstElement *Element[T] = d.container.Front()
+	firstElement := d.container.Front()
 	if firstElement != nil {
 		item = d.container.Remove(firstElement)
 		ok = true
@@ -85,7 +86,7 @@ func (d *Deque[T]) First() (item T, ok bool) {
 	d.RLock()
 	defer d.RUnlock()
 
-	var frontItem *Element[T] = d.container.Front()
+	frontItem := d.container.Front()
 	if frontItem != nil {
 		item = frontItem.Value
 		ok = true
@@ -99,8 +100,7 @@ func (d *Deque[T]) Last() (item T, ok bool) {
 	d.RLock()
 	defer d.RUnlock()
 
-	var backItem *Element[T] = d.container.Back()
-	if backItem != nil {
+	if backItem := d.container.Back(); backItem != nil {
 		item = backItem.Value
 		ok = true
 	}
@@ -113,7 +113,7 @@ func (d *Deque[T]) Size() uint {
 	d.RLock()
 	defer d.RUnlock()
 
-	return uint(d.container.Len())
+	return d.container.Len()
 }
 
 // Empty checks if the deque is empty.
@@ -130,15 +130,15 @@ type Capaciter interface {
 	// Capacity returns the current capacity of the underlying type implementation.
 	Capacity() int
 
-	// IsFull returns whether the implementing type instance is full. 
+	// IsFull returns whether the implementing type instance is full.
 	IsFull() bool
 }
 
 // BoundDeque is a head-tail linked list data structure implementation
 // with a user-defined capacity: any operation leading to the size
 // of the container to overflow its capacity will fail.
-//  
-// The BoundDeque's implementation is built upon a doubly linked list 
+//
+// The BoundDeque's implementation is built upon a doubly linked list
 // container, so that every operations' time complexity is O(1) (N.B:
 // linked-list are not CPU-cache friendly).
 // Every operation on a BoundDeque are goroutine-safe and ready
@@ -152,9 +152,9 @@ type BoundDeque[T any] struct {
 
 // NewBoundDeque produces a new BoundDeque instance with the provided
 // capacity.
-func NewBoundDeque[T any](capacity uint, values...T) *BoundDeque[T] {
+func NewBoundDeque[T any](capacity uint, values ...T) *BoundDeque[T] {
 	return &BoundDeque[T]{
-		Deque: *NewDeque[T](values...),
+		Deque:    *NewDeque(values...),
 		capacity: capacity,
 	}
 }

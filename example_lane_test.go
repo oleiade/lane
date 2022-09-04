@@ -25,7 +25,7 @@ func ExamplePriorityQueue() {
 
 	// Okay the song order seems to be preserved, let's
 	// roll
-	var jacksonFive []string = make([]string, priorityQueue.Size())
+	jacksonFive := make([]string, priorityQueue.Size())
 
 	for i := 0; i < len(jacksonFive); i++ {
 		value, _, _ := priorityQueue.Pop()
@@ -60,7 +60,7 @@ func ExampleDeque() {
 
 	// Okay now let's play with the Pop and Shift
 	// methods to bring the song words together
-	var jacksonFive []string = make([]string, deque.Size())
+	jacksonFive := make([]string, deque.Size())
 
 	for i := 0; i < len(jacksonFive); i++ {
 		value, ok := deque.Shift()
