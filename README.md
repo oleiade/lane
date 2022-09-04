@@ -42,7 +42,7 @@ go get github.com/oleiade/lane/v2
 ```go
 ...
 import (
- "github.com/oleiade/lane/v2" // imports as package "cli"
+ "github.com/oleiade/lane/v2"
 )
 ...
 ```
