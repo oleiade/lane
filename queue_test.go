@@ -47,6 +47,12 @@ func TestNewQueue(t *testing.T) {
 	}
 }
 
+func BenchmarkNewQueue(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		NewQueue[int]()
+	}
+}
+
 func TestQueueEnqueue(t *testing.T) {
 	t.Parallel()
 
@@ -93,6 +99,17 @@ func TestQueueEnqueue(t *testing.T) {
 				assert.Equal(t, tC.wantContainerLastValue, gotContainerFirstValue)
 			}
 		})
+	}
+}
+
+func BenchmarkQueueEnqueue(b *testing.B) {
+	b.ReportAllocs()
+
+	queue := NewQueue[int]()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		queue.Enqueue(i)
 	}
 }
 
@@ -148,6 +165,17 @@ func TestQueueDequeue(t *testing.T) {
 	}
 }
 
+func BenchmarkQueueDequeue(b *testing.B) {
+	b.ReportAllocs()
+
+	queue := NewQueue[int]()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		queue.Dequeue()
+	}
+}
+
 func TestQueueHead(t *testing.T) {
 	t.Parallel()
 
@@ -197,5 +225,16 @@ func TestQueueHead(t *testing.T) {
 				assert.Equal(t, tC.wantContainerLastValue, gotContainerFirstValue)
 			}
 		})
+	}
+}
+
+func BenchmarkQueueHead(b *testing.B) {
+	b.ReportAllocs()
+
+	queue := NewQueue[int]()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		queue.Head()
 	}
 }

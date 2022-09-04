@@ -82,6 +82,17 @@ func TestPriorityQueuePush(t *testing.T) {
 	}
 }
 
+func BenchmarkPriorityQueuePush(b *testing.B) {
+	b.ReportAllocs()
+
+	pqueue := NewMaxPriorityQueue[string, int]()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		pqueue.Push("a", 1)
+	}
+}
+
 func TestPriorityQueuePop(t *testing.T) {
 	t.Parallel()
 
@@ -166,6 +177,17 @@ func TestPriorityQueuePop(t *testing.T) {
 			assert.Equal(t, testCase.wantItemCount, gotItemCount)
 			assert.Equal(t, testCase.wantItems, gotItems)
 		})
+	}
+}
+
+func BenchmarkPriorityQueuePop(b *testing.B) {
+	b.ReportAllocs()
+
+	pqueue := NewMaxPriorityQueue[string, int]()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		pqueue.Pop()
 	}
 }
 
@@ -258,6 +280,17 @@ func TestPriorityQueueHead(t *testing.T) {
 	}
 }
 
+func BenchmarkPriorityQueueHead(b *testing.B) {
+	b.ReportAllocs()
+
+	pqueue := NewMaxPriorityQueue[string, int]()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		pqueue.Head()
+	}
+}
+
 func TestPriorityQueueSize(t *testing.T) {
 	t.Parallel()
 
@@ -300,6 +333,17 @@ func TestPriorityQueueSize(t *testing.T) {
 	}
 }
 
+func BenchmarkPriorityQueueSize(b *testing.B) {
+	b.ReportAllocs()
+
+	pqueue := NewMaxPriorityQueue[string, int]()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		pqueue.Size()
+	}
+}
+
 func TestPriorityQueueEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -339,5 +383,16 @@ func TestPriorityQueueEmpty(t *testing.T) {
 
 			assert.Equal(t, testCase.wantValue, gotValue)
 		})
+	}
+}
+
+func BenchmarkPriorityQueueEmpty(b *testing.B) {
+	b.ReportAllocs()
+
+	pqueue := NewMaxPriorityQueue[string, int]()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		pqueue.Empty()
 	}
 }

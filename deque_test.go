@@ -55,6 +55,17 @@ func TestDequeAppend(t *testing.T) {
 	}
 }
 
+func BenchmarkDequeAppend(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewDeque[int]()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+}
+
 func TestDequePrepend(t *testing.T) {
 	t.Parallel()
 
@@ -101,6 +112,17 @@ func TestDequePrepend(t *testing.T) {
 				assert.Equal(t, tC.wantContainerFrontValue, gotContainerFront.Value)
 			}
 		})
+	}
+}
+
+func BenchmarkDequePrepend(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewDeque[int]()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Prepend(i)
 	}
 }
 
@@ -157,6 +179,21 @@ func TestDequePop(t *testing.T) {
 	}
 }
 
+func BenchmarkDequePop(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewDeque[int]()
+
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Pop()
+	}
+}
+
 func TestDequeShift(t *testing.T) {
 	t.Parallel()
 
@@ -207,6 +244,21 @@ func TestDequeShift(t *testing.T) {
 				assert.Equal(t, tC.wantContainerFrontValue, gotContainerBack.Value)
 			}
 		})
+	}
+}
+
+func BenchmarkDequeShift(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewDeque[int]()
+
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Shift()
 	}
 }
 
@@ -263,6 +315,21 @@ func TestDequeFirst(t *testing.T) {
 	}
 }
 
+func BenchmarkDequeFirst(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewDeque[int]()
+
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.First()
+	}
+}
+
 func TestDequeLast(t *testing.T) {
 	t.Parallel()
 
@@ -316,6 +383,21 @@ func TestDequeLast(t *testing.T) {
 	}
 }
 
+func BenchmarkDequeLast(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewDeque[int]()
+
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Last()
+	}
+}
+
 func TestDequeSize(t *testing.T) {
 	t.Parallel()
 
@@ -354,6 +436,21 @@ func TestDequeSize(t *testing.T) {
 	}
 }
 
+func BenchmarkDequeSize(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewDeque[int]()
+
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Size()
+	}
+}
+
 func TestDequeEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -389,6 +486,21 @@ func TestDequeEmpty(t *testing.T) {
 			assert.Equal(t, tC.wantValue, gotValue)
 			assert.Equal(t, tC.wantContainerLen, gotContainerLen)
 		})
+	}
+}
+
+func BenchmarkDequeEmpty(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewDeque[int]()
+
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Empty()
 	}
 }
 
@@ -435,6 +547,21 @@ func TestBoundDequeFull(t *testing.T) {
 	}
 }
 
+func BenchmarkBoundDequeFull(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewBoundDeque[int](1)
+
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Full()
+	}
+}
+
 // Considering BoundDeque embeds a Deque, no need to cover general
 // cases that are not specifically related to capacity management.
 func TestBoundDequeAppend(t *testing.T) {
@@ -475,6 +602,16 @@ func TestBoundDequeAppend(t *testing.T) {
 	}
 }
 
+func BenchmarkBoundDequeAppend(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewBoundDeque[int](1)
+
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+}
+
 // Considering BoundDeque embeds a Deque, no need to cover general
 // cases that are not specifically related to capacity management.
 func TestBoundDequePrepend(t *testing.T) {
@@ -512,5 +649,15 @@ func TestBoundDequePrepend(t *testing.T) {
 
 			assert.Equal(t, tC.wantOk, gotOk)
 		})
+	}
+}
+
+func BenchmarkBoundDeque(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewBoundDeque[int](1)
+
+	for i := 0; i < b.N; i++ {
+		deque.Prepend(i)
 	}
 }

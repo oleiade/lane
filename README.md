@@ -8,6 +8,25 @@
 
 The Lane package provides implementations of generic `Queue`, `PriorityQueue`, `Stack`, and `Deque` data structures. It was designed with simplicity, performance, and concurrent usage in mind.
 
+<!-- toc -->
+
+- [Lane](#lane)
+  - [Installation](#installation)
+    - [Using `v2` releases](#using-v2-releases)
+    - [Using `v1` releases](#using-v1-releases)
+  - [Usage/Examples](#usageexamples)
+    - [Priority Queue](#priority-queue)
+      - [Example](#example)
+    - [Deque](#deque)
+      - [Deque Example](#deque-example)
+    - [Queue](#queue)
+      - [Queue Example](#queue-example)
+    - [Stack](#stack)
+      - [Stack Example](#stack-example)
+  - [Performance](#performance)
+  - [Documentation](#documentation)
+  - [License](#license)
+
 ## Installation
 
 Using this package requires a working Go environment. [See the install instructions for Go](http://golang.org/doc/install.html).
@@ -208,6 +227,38 @@ value, ok = stack.Pop()
 if okay {
     fmt.Println(value) // redPlate
 }
+```
+
+## Performance
+
+```bash
+go test -bench=.
+goos: darwin
+goarch: arm64
+pkg: github.com/oleiade/lane/v2
+BenchmarkDequeAppend-8          22954384        54.44 ns/op      32 B/op       1 allocs/op
+BenchmarkDequePrepend-8         25097098        44.59 ns/op      32 B/op       1 allocs/op
+BenchmarkDequePop-8             63403720        18.99 ns/op       0 B/op       0 allocs/op
+BenchmarkDequeShift-8           63390186        20.88 ns/op       0 B/op       0 allocs/op
+BenchmarkDequeFirst-8           86662152        13.76 ns/op       0 B/op       0 allocs/op
+BenchmarkDequeLast-8            85955014        13.76 ns/op       0 B/op       0 allocs/op
+BenchmarkDequeSize-8            86614975        13.77 ns/op       0 B/op       0 allocs/op
+BenchmarkDequeEmpty-8           86893297        14.22 ns/op       0 B/op       0 allocs/op
+BenchmarkBoundDequeFull-8       590152324         2.039 ns/op       0 B/op       0 allocs/op
+BenchmarkBoundDequeAppend-8     64457216        18.50 ns/op       0 B/op       0 allocs/op
+BenchmarkBoundDeque-8           64631377        18.48 ns/op       0 B/op       0 allocs/op
+BenchmarkPriorityQueuePush-8    19994029        65.67 ns/op      72 B/op       1 allocs/op
+BenchmarkPriorityQueuePop-8     62751249        18.52 ns/op       0 B/op       0 allocs/op
+BenchmarkPriorityQueueHead-8    86090420        13.77 ns/op       0 B/op       0 allocs/op
+BenchmarkPriorityQueueSize-8    86768415        13.77 ns/op       0 B/op       0 allocs/op
+BenchmarkPriorityQueueEmpty-8   87036146        13.76 ns/op       0 B/op       0 allocs/op
+BenchmarkNewQueue-8             19570003        60.36 ns/op
+BenchmarkQueueEnqueue-8         25482283        46.63 ns/op      32 B/op       1 allocs/op
+BenchmarkQueueDequeue-8         63715965        18.50 ns/op       0 B/op       0 allocs/op
+BenchmarkQueueHead-8            85664312        13.79 ns/op       0 B/op       0 allocs/op
+BenchmarkNewStack-8             19925473        59.57 ns/op
+BenchmarkStackPop-8             64704993        18.80 ns/op       0 B/op       0 allocs/op
+BenchmarkStackHead-8            86119761        13.76 ns/op       0 B/op       0 allocs/op
 ```
 
 ## Documentation

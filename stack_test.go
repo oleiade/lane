@@ -96,6 +96,12 @@ func TestStackPush(t *testing.T) {
 	}
 }
 
+func BenchmarkNewStack(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		NewStack[int]()
+	}
+}
+
 func TestStackPop(t *testing.T) {
 	t.Parallel()
 
@@ -148,6 +154,22 @@ func TestStackPop(t *testing.T) {
 	}
 }
 
+func BenchmarkStackPop(b *testing.B) {
+	b.ReportAllocs()
+
+	stack := NewStack[int]()
+
+	for i := 0; i < b.N; i++ {
+		stack.Push(i)
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		stack.Pop()
+	}
+}
+
 func TestStackHead(t *testing.T) {
 	t.Parallel()
 
@@ -197,5 +219,21 @@ func TestStackHead(t *testing.T) {
 				assert.Equal(t, tC.wantContainerFirstValue, gotContainerFirstValue)
 			}
 		})
+	}
+}
+
+func BenchmarkStackHead(b *testing.B) {
+	b.ReportAllocs()
+
+	stack := NewStack[int]()
+
+	for i := 0; i < b.N; i++ {
+		stack.Push(i)
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		stack.Head()
 	}
 }
