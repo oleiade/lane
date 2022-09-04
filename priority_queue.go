@@ -1,8 +1,9 @@
 package lane
 
 import (
-	"constraints"
 	"sync"
+
+	"golang.org/x/exp/constraints"
 )
 
 // PriorityQueue is a heap priority queue data structure implementation.
