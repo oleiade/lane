@@ -1,383 +1,663 @@
 package lane
 
 import (
-	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDequeAppend(t *testing.T) {
-	deque := NewDeque()
-	sampleSize := 100
+	t.Parallel()
 
-	// Append elements in the Deque and assert it does not fail
-	for i := 0; i < sampleSize; i++ {
-		var value string = strconv.Itoa(i)
-		var ok bool = deque.Append(value)
-
-		assert(
-			t,
-			ok == true,
-			"deque.Append(%d) = %t; want %t", i, ok, true,
-		)
+	testCases := []struct {
+		desc                   string
+		deque                  *Deque[int]
+		appendValue            int
+		wantContainerLen       uint
+		wantContainerBack      bool
+		wantContainerBackValue int
+	}{
+		{
+			desc:                   "append to empty deque inserts value",
+			deque:                  NewDeque[int](),
+			appendValue:            42,
+			wantContainerLen:       1,
+			wantContainerBack:      true,
+			wantContainerBackValue: 42,
+		},
+		{
+			desc:                   "append inserts value at the back",
+			deque:                  NewDeque([]int{40, 41}...),
+			appendValue:            42,
+			wantContainerLen:       3,
+			wantContainerBack:      true,
+			wantContainerBackValue: 42,
+		},
 	}
 
-	assert(
-		t,
-		deque.container.Len() == sampleSize,
-		"deque.container.Len() = %d; want %d", deque.container.Len(), sampleSize,
-	)
+	for _, tC := range testCases {
+		tC := tC
 
-	assert(
-		t,
-		deque.container.Front().Value == "0",
-		"deque.container.Front().Value = %s; want %s", deque.container.Front().Value, "0",
-	)
+		t.Run(tC.desc, func(t *testing.T) {
+			t.Parallel()
 
-	assert(
-		t,
-		deque.container.Back().Value == "99",
-		"deque.container.Back().Value = %s; want %s", deque.container.Back().Value, "99",
-	)
+			tC.deque.Append(tC.appendValue)
+			gotContainerLen := tC.deque.container.Len()
+			gotContainerBack := tC.deque.container.Back()
+
+			assert.Equal(t, tC.wantContainerLen, gotContainerLen)
+			assert.Equal(t, tC.wantContainerBack, gotContainerBack != nil)
+
+			if tC.wantContainerBack {
+				assert.Equal(t, tC.wantContainerBackValue, gotContainerBack.Value)
+			}
+		})
+	}
 }
 
-func TestDequeAppendWithCapacity(t *testing.T) {
-	dequeSize := 20
-	deque := NewCappedDeque(dequeSize)
+func BenchmarkDequeAppend(b *testing.B) {
+	b.ReportAllocs()
 
-	// Append the maximum number of elements in the Deque
-	// and assert it does not fail
-	for i := 0; i < dequeSize; i++ {
-		var value string = strconv.Itoa(i)
-		var ok bool = deque.Append(value)
+	deque := NewDeque[int]()
 
-		assert(
-			t,
-			ok == true,
-			"deque.Append(%d) = %t; want %t", i, ok, true,
-		)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
 	}
-
-	// Try to overflow the Deque size limit, and make
-	// sure appending fails
-	var ok bool = deque.Append("should not be ok")
-	assert(
-		t,
-		ok == false,
-		"deque.Append(%s) = %t; want %t", "should not be ok", ok, false,
-	)
-
-	assert(
-		t,
-		deque.container.Len() == dequeSize,
-		"deque.container.Len() = %d; want %d", deque.container.Len(), dequeSize,
-	)
-
-	assert(
-		t,
-		deque.container.Front().Value == "0",
-		"deque.container.Front().Value = %s; want %s", deque.container.Front().Value, "0",
-	)
-
-	assert(
-		t,
-		deque.container.Back().Value == "19",
-		"deque.container.Back().Value = %s; want %s", deque.container.Back().Value, "19",
-	)
 }
 
 func TestDequePrepend(t *testing.T) {
-	deque := NewDeque()
-	sampleSize := 100
+	t.Parallel()
 
-	// Prepend elements in the Deque and assert it does not fail
-	for i := 0; i < sampleSize; i++ {
-		var value string = strconv.Itoa(i)
-		var ok bool = deque.Prepend(value)
-
-		assert(
-			t,
-			ok == true,
-			"deque.Prepend(%d) = %t; want %t", i, ok, true,
-		)
+	testCases := []struct {
+		desc                    string
+		deque                   *Deque[int]
+		prependValue            int
+		wantContainerLen        uint
+		wantContainerFront      bool
+		wantContainerFrontValue int
+	}{
+		{
+			desc:                    "prepend to empty deque",
+			deque:                   NewDeque[int](),
+			prependValue:            42,
+			wantContainerLen:        1,
+			wantContainerFront:      true,
+			wantContainerFrontValue: 42,
+		},
+		{
+			desc:                    "prepend inserts value at the back",
+			deque:                   NewDeque([]int{43, 44}...),
+			prependValue:            42,
+			wantContainerLen:        3,
+			wantContainerFront:      true,
+			wantContainerFrontValue: 42,
+		},
 	}
 
-	assert(
-		t,
-		deque.container.Len() == sampleSize,
-		"deque.container.Len() = %d; want %d", deque.container.Len(), sampleSize,
-	)
+	for _, tC := range testCases {
+		tC := tC
 
-	assert(
-		t,
-		deque.container.Front().Value == "99",
-		"deque.container.Front().Value = %s; want %s", deque.container.Front().Value, "99",
-	)
+		t.Run(tC.desc, func(t *testing.T) {
+			t.Parallel()
 
-	assert(
-		t,
-		deque.container.Back().Value == "0",
-		"deque.container.Back().Value = %s; want %s", deque.container.Back().Value, "0",
-	)
-}
+			tC.deque.Prepend(tC.prependValue)
+			gotContainerLen := tC.deque.container.Len()
+			gotContainerFront := tC.deque.container.Front()
 
-func TestDequePrependWithCapacity(t *testing.T) {
-	dequeSize := 20
-	deque := NewCappedDeque(dequeSize)
+			assert.Equal(t, tC.wantContainerLen, gotContainerLen)
+			assert.Equal(t, tC.wantContainerFront, gotContainerFront != nil)
 
-	// Prepend elements in the Deque and assert it does not fail
-	for i := 0; i < dequeSize; i++ {
-		var value string = strconv.Itoa(i)
-		var ok bool = deque.Prepend(value)
-
-		assert(
-			t,
-			ok == true,
-			"deque.Prepend(%d) = %t; want %t", i, ok, true,
-		)
-	}
-
-	// Try to overflow the Deque size limit, and make
-	// sure appending fails
-	var ok bool = deque.Prepend("should not be ok")
-	assert(
-		t,
-		ok == false,
-		"deque.Prepend(%s) = %t; want %t", "should not be ok", ok, false,
-	)
-
-	assert(
-		t,
-		deque.container.Len() == dequeSize,
-		"deque.container.Len() = %d; want %d", deque.container.Len(), dequeSize,
-	)
-
-	assert(
-		t,
-		deque.container.Front().Value == "19",
-		"deque.container.Front().Value = %s; want %s", deque.container.Front().Value, "19",
-	)
-
-	assert(
-		t,
-		deque.container.Back().Value == "0",
-		"deque.container.Back().Value = %s; want %s", deque.container.Back().Value, "0",
-	)
-}
-
-func TestDequePop_fulfilled_container(t *testing.T) {
-	deque := NewDeque()
-	dequeSize := 100
-
-	// Populate the test deque
-	for i := 0; i < dequeSize; i++ {
-		var value string = strconv.Itoa(i)
-		deque.Append(value)
-	}
-
-	// Pop elements of the deque and assert elements come out
-	// in order and container size is updated accordingly
-	for i := dequeSize - 1; i >= 0; i-- {
-		item := deque.Pop()
-
-		var itemValue string = item.(string)
-		var expectedValue string = strconv.Itoa(i)
-
-		assert(
-			t,
-			itemValue == expectedValue,
-			"deque.Pop() = %s; want %s", itemValue, expectedValue,
-		)
-
-		assert(
-			t,
-			deque.container.Len() == i,
-			"deque.container.Len() = %d; want %d", deque.container.Len(), i,
-		)
-
+			if tC.wantContainerFront {
+				assert.Equal(t, tC.wantContainerFrontValue, gotContainerFront.Value)
+			}
+		})
 	}
 }
 
-func TestDequePop_empty_container(t *testing.T) {
-	deque := NewDeque()
-	item := deque.Pop()
+func BenchmarkDequePrepend(b *testing.B) {
+	b.ReportAllocs()
 
-	assert(
-		t,
-		item == nil,
-		"item = %v; want %v", item, nil,
-	)
+	deque := NewDeque[int]()
 
-	assert(
-		t,
-		deque.container.Len() == 0,
-		"deque.container.Len() = %d; want %d", deque.container.Len(), 0,
-	)
-}
-
-func TestDequeShift_fulfilled_container(t *testing.T) {
-	deque := NewDeque()
-	dequeSize := 100
-
-	// Populate the test deque
-	for i := 0; i < dequeSize; i++ {
-		var value string = strconv.Itoa(i)
-		deque.Append(value)
-	}
-
-	// Pop elements of the deque and assert elements come out
-	// in order and container size is updated accordingly
-	for i := 0; i < dequeSize; i++ {
-		item := deque.Shift()
-
-		var itemValue string = item.(string)
-		var expectedValue string = strconv.Itoa(i)
-
-		assert(
-			t,
-			itemValue == expectedValue,
-			"deque.Shift() = %s; want %s", itemValue, expectedValue,
-		)
-
-		assert(
-			t,
-			// Len should be equal to dequeSize - (i + 1) as i is zero indexed
-			deque.container.Len() == (dequeSize-(i+1)),
-			"deque.container.Len() = %d; want %d", deque.container.Len(), dequeSize-i,
-		)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Prepend(i)
 	}
 }
 
-func TestDequeShift_empty_container(t *testing.T) {
-	deque := NewDeque()
+func TestDequePop(t *testing.T) {
+	t.Parallel()
 
-	item := deque.Shift()
-	assert(
-		t,
-		item == nil,
-		"deque.Shift() = %v; want %v", item, nil,
-	)
+	testCases := []struct {
+		desc                   string
+		deque                  *Deque[int]
+		wantOk                 bool
+		wantValue              int
+		wantContainerLen       uint
+		wantContainerBack      bool
+		wantContainerBackValue int
+	}{
+		{
+			desc:              "Pop from an empty Deque",
+			deque:             NewDeque[int](),
+			wantOk:            false,
+			wantValue:         0,
+			wantContainerLen:  0,
+			wantContainerBack: false,
+		},
+		{
+			desc:                   "Pop removes and returns the back value",
+			deque:                  NewDeque([]int{40, 41, 42}...),
+			wantOk:                 true,
+			wantValue:              42,
+			wantContainerLen:       2,
+			wantContainerBack:      true,
+			wantContainerBackValue: 41,
+		},
+	}
 
-	assert(
-		t,
-		deque.container.Len() == 0,
-		"deque.container.Len() = %d; want %d", deque.container.Len(), 0,
-	)
+	for _, tC := range testCases {
+		tC := tC
+
+		t.Run(tC.desc, func(t *testing.T) {
+			t.Parallel()
+
+			gotValue, gotOk := tC.deque.Pop()
+			gotContainerLen := tC.deque.container.Len()
+			gotContainerBack := tC.deque.container.Back()
+
+			assert.Equal(t, tC.wantOk, gotOk)
+			assert.Equal(t, tC.wantValue, gotValue)
+			assert.Equal(t, tC.wantContainerLen, gotContainerLen)
+			assert.Equal(t, tC.wantContainerBack, gotContainerBack != nil)
+
+			if tC.wantContainerBack {
+				assert.Equal(t, tC.wantContainerBackValue, gotContainerBack.Value)
+			}
+		})
+	}
 }
 
-func TestDequeFirst_fulfilled_container(t *testing.T) {
-	deque := NewDeque()
-	deque.Append("1")
-	item := deque.First()
+func BenchmarkDequePop(b *testing.B) {
+	b.ReportAllocs()
 
-	assert(
-		t,
-		item == "1",
-		"deque.First() = %s; want %s", item, "1",
-	)
+	deque := NewDeque[int]()
 
-	assert(
-		t,
-		deque.container.Len() == 1,
-		"deque.container.Len() = %d; want %d", deque.container.Len(), 1,
-	)
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Pop()
+	}
 }
 
-func TestDequeFirst_empty_container(t *testing.T) {
-	deque := NewDeque()
-	item := deque.First()
+func TestDequeShift(t *testing.T) {
+	t.Parallel()
 
-	assert(
-		t,
-		item == nil,
-		"deque.First() = %v; want %v", item, nil,
-	)
+	testCases := []struct {
+		desc                    string
+		deque                   *Deque[int]
+		wantOk                  bool
+		wantValue               int
+		wantContainerLen        uint
+		wantContainerFront      bool
+		wantContainerFrontValue int
+	}{
+		{
+			desc:               "Shift from an empty Deque",
+			deque:              NewDeque[int](),
+			wantOk:             false,
+			wantValue:          0,
+			wantContainerLen:   0,
+			wantContainerFront: false,
+		},
+		{
+			desc:                    "Shift removes and returns the front value",
+			deque:                   NewDeque([]int{42, 43, 44}...),
+			wantOk:                  true,
+			wantValue:               42,
+			wantContainerLen:        2,
+			wantContainerFront:      true,
+			wantContainerFrontValue: 43,
+		},
+	}
 
-	assert(
-		t,
-		deque.container.Len() == 0,
-		"deque.container.Len() = %d; want %d", deque.container.Len(), 0,
-	)
+	for _, tC := range testCases {
+		tC := tC
+
+		t.Run(tC.desc, func(t *testing.T) {
+			t.Parallel()
+
+			gotValue, gotOk := tC.deque.Shift()
+			gotContainerLen := tC.deque.container.Len()
+			gotContainerBack := tC.deque.container.Front()
+
+			assert.Equal(t, tC.wantOk, gotOk)
+			assert.Equal(t, tC.wantValue, gotValue)
+			assert.Equal(t, tC.wantContainerLen, gotContainerLen)
+			assert.Equal(t, tC.wantContainerFront, gotContainerBack != nil)
+
+			if tC.wantContainerFront {
+				assert.Equal(t, tC.wantContainerFrontValue, gotContainerBack.Value)
+			}
+		})
+	}
 }
 
-func TestDequeLast_fulfilled_container(t *testing.T) {
-	deque := NewDeque()
+func BenchmarkDequeShift(b *testing.B) {
+	b.ReportAllocs()
 
-	deque.Append("1")
-	deque.Append("2")
-	deque.Append("3")
+	deque := NewDeque[int]()
 
-	item := deque.Last()
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
 
-	assert(
-		t,
-		item == "3",
-		"deque.Last() = %s; want %s", item, "3",
-	)
-
-	assert(
-		t,
-		deque.container.Len() == 3,
-		"deque.container.Len() = %d; want %d", deque.container.Len(), 3,
-	)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Shift()
+	}
 }
 
-func TestDequeLast_empty_container(t *testing.T) {
-	deque := NewDeque()
-	item := deque.Last()
+func TestDequeFirst(t *testing.T) {
+	t.Parallel()
 
-	assert(
-		t,
-		item == nil,
-		"deque.Last() = %v; want %v", item, nil,
-	)
+	testCases := []struct {
+		desc                    string
+		deque                   *Deque[int]
+		wantOk                  bool
+		wantValue               int
+		wantContainerLen        uint
+		wantContainerFront      bool
+		wantContainerFrontValue int
+	}{
+		{
+			desc:               "First from an empty Deque",
+			deque:              NewDeque[int](),
+			wantOk:             false,
+			wantValue:          0,
+			wantContainerLen:   0,
+			wantContainerFront: false,
+		},
+		{
+			desc:                    "First returns the front value",
+			deque:                   NewDeque([]int{42, 43, 44}...),
+			wantOk:                  true,
+			wantValue:               42,
+			wantContainerLen:        3,
+			wantContainerFront:      true,
+			wantContainerFrontValue: 42,
+		},
+	}
 
-	assert(
-		t,
-		deque.container.Len() == 0,
-		"deque.container.Len() = %d; want %d", deque.container.Len(), 0,
-	)
+	for _, tC := range testCases {
+		tC := tC
+
+		t.Run(tC.desc, func(t *testing.T) {
+			t.Parallel()
+
+			gotValue, gotOk := tC.deque.First()
+			gotContainerLen := tC.deque.container.Len()
+			gotContainerBack := tC.deque.container.Front()
+
+			assert.Equal(t, tC.wantOk, gotOk)
+			assert.Equal(t, tC.wantValue, gotValue)
+			assert.Equal(t, tC.wantContainerLen, gotContainerLen)
+			assert.Equal(t, tC.wantContainerFront, gotContainerBack != nil)
+
+			if tC.wantContainerFront {
+				assert.Equal(t, tC.wantContainerFrontValue, gotContainerBack.Value)
+			}
+		})
+	}
 }
 
-func TestDequeEmpty_fulfilled(t *testing.T) {
-	deque := NewDeque()
-	deque.Append("1")
+func BenchmarkDequeFirst(b *testing.B) {
+	b.ReportAllocs()
 
-	assert(
-		t,
-		deque.Empty() == false,
-		"deque.Empty() = %t; want %t", deque.Empty(), false)
+	deque := NewDeque[int]()
+
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.First()
+	}
 }
 
-func TestDequeEmpty_empty_deque(t *testing.T) {
-	deque := NewDeque()
-	assert(
-		t,
-		deque.Empty() == true,
-		"deque.Empty() = %t; want %t", deque.Empty(), true,
-	)
+func TestDequeLast(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		desc                   string
+		deque                  *Deque[int]
+		wantOk                 bool
+		wantValue              int
+		wantContainerLen       uint
+		wantContainerBack      bool
+		wantContainerBackValue int
+	}{
+		{
+			desc:              "Last from an empty Deque",
+			deque:             NewDeque[int](),
+			wantOk:            false,
+			wantValue:         0,
+			wantContainerLen:  0,
+			wantContainerBack: false,
+		},
+		{
+			desc:                   "Last returns the front value",
+			deque:                  NewDeque([]int{40, 41, 42}...),
+			wantOk:                 true,
+			wantValue:              42,
+			wantContainerLen:       3,
+			wantContainerBack:      true,
+			wantContainerBackValue: 42,
+		},
+	}
+
+	for _, tC := range testCases {
+		tC := tC
+
+		t.Run(tC.desc, func(t *testing.T) {
+			t.Parallel()
+
+			gotValue, gotOk := tC.deque.Last()
+			gotContainerLen := tC.deque.container.Len()
+			gotContainerBack := tC.deque.container.Back()
+
+			assert.Equal(t, tC.wantOk, gotOk)
+			assert.Equal(t, tC.wantValue, gotValue)
+			assert.Equal(t, tC.wantContainerLen, gotContainerLen)
+			assert.Equal(t, tC.wantContainerBack, gotContainerBack != nil)
+
+			if tC.wantContainerBack {
+				assert.Equal(t, tC.wantContainerBackValue, gotContainerBack.Value)
+			}
+		})
+	}
 }
 
-func TestDequeFull_fulfilled(t *testing.T) {
-	deque := NewCappedDeque(3)
+func BenchmarkDequeLast(b *testing.B) {
+	b.ReportAllocs()
 
-	deque.Append("1")
-	deque.Append("2")
-	deque.Append("3")
+	deque := NewDeque[int]()
 
-	assert(
-		t,
-		deque.Full() == true,
-		"deque.Full() = %t; want %t", deque.Full(), true,
-	)
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Last()
+	}
 }
 
-func TestDequeFull_non_full_deque(t *testing.T) {
-	deque := NewCappedDeque(3)
-	deque.Append("1")
+func TestDequeSize(t *testing.T) {
+	t.Parallel()
 
-	assert(
-		t,
-		deque.Full() == false,
-		"deque.Full() = %t; want %t", deque.Full(), false,
-	)
+	testCases := []struct {
+		desc             string
+		deque            *Deque[int]
+		wantValue        uint
+		wantContainerLen uint
+	}{
+		{
+			desc:             "Size of an empty Deque",
+			deque:            NewDeque[int](),
+			wantValue:        0,
+			wantContainerLen: 0,
+		},
+		{
+			desc:             "Size of a filled Deque",
+			deque:            NewDeque([]int{40, 41, 42}...),
+			wantValue:        3,
+			wantContainerLen: 3,
+		},
+	}
+
+	for _, tC := range testCases {
+		tC := tC
+
+		t.Run(tC.desc, func(t *testing.T) {
+			t.Parallel()
+
+			gotValue := tC.deque.Size()
+			gotContainerLen := tC.deque.container.Len()
+
+			assert.Equal(t, tC.wantValue, gotValue)
+			assert.Equal(t, tC.wantContainerLen, gotContainerLen)
+		})
+	}
+}
+
+func BenchmarkDequeSize(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewDeque[int]()
+
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Size()
+	}
+}
+
+func TestDequeEmpty(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		desc             string
+		deque            *Deque[int]
+		wantValue        bool
+		wantContainerLen uint
+	}{
+		{
+			desc:             "Empty of an empty Deque",
+			deque:            NewDeque[int](),
+			wantValue:        true,
+			wantContainerLen: 0,
+		},
+		{
+			desc:             "Empty of a filled Deque",
+			deque:            NewDeque([]int{40, 41, 42}...),
+			wantValue:        false,
+			wantContainerLen: 3,
+		},
+	}
+
+	for _, tC := range testCases {
+		tC := tC
+
+		t.Run(tC.desc, func(t *testing.T) {
+			t.Parallel()
+
+			gotValue := tC.deque.Empty()
+			gotContainerLen := tC.deque.container.Len()
+
+			assert.Equal(t, tC.wantValue, gotValue)
+			assert.Equal(t, tC.wantContainerLen, gotContainerLen)
+		})
+	}
+}
+
+func BenchmarkDequeEmpty(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewDeque[int]()
+
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Empty()
+	}
+}
+
+func TestBoundDequeFull(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		desc     string
+		deque    *BoundDeque[int]
+		wantFull bool
+	}{
+		{
+			desc:     "Empty BoundDeque with non null capacity is not full",
+			deque:    NewBoundDeque[int](1),
+			wantFull: false,
+		},
+		{
+			desc:     "Empty BoundDeque with null capacity is full",
+			deque:    NewBoundDeque[int](0),
+			wantFull: true,
+		},
+		{
+			desc:     "Non empty BoundDeque with non null, capacity and available space is not full",
+			deque:    NewBoundDeque(4, []int{40, 41, 42}...),
+			wantFull: false,
+		},
+		{
+			desc:     "Non empty BoundDeque with non null, capacity and no available space is full",
+			deque:    NewBoundDeque(3, []int{40, 41, 42}...),
+			wantFull: true,
+		},
+	}
+
+	for _, tC := range testCases {
+		tC := tC
+
+		t.Run(tC.desc, func(t *testing.T) {
+			t.Parallel()
+
+			gotFull := tC.deque.Full()
+
+			assert.Equal(t, tC.wantFull, gotFull)
+		})
+	}
+}
+
+func BenchmarkBoundDequeFull(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewBoundDeque[int](1)
+
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		deque.Full()
+	}
+}
+
+// Considering BoundDeque embeds a Deque, no need to cover general
+// cases that are not specifically related to capacity management.
+func TestBoundDequeAppend(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		desc   string
+		deque  *BoundDeque[int]
+		wantOk bool
+	}{
+		{
+			desc:   "Append to BoundDeque with non null capacity and available space",
+			deque:  NewBoundDeque[int](1),
+			wantOk: true,
+		},
+		{
+			desc:   "Append to BoundDeque with non null capacity and available space",
+			deque:  NewBoundDeque(1, []int{42}...),
+			wantOk: false,
+		},
+		{
+			desc:   "Append to BoundDeque with null capacity",
+			deque:  NewBoundDeque[int](0),
+			wantOk: false,
+		},
+	}
+
+	for _, tC := range testCases {
+		tC := tC
+
+		t.Run(tC.desc, func(t *testing.T) {
+			t.Parallel()
+
+			gotOk := tC.deque.Append(42)
+
+			assert.Equal(t, tC.wantOk, gotOk)
+		})
+	}
+}
+
+func BenchmarkBoundDequeAppend(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewBoundDeque[int](1)
+
+	for i := 0; i < b.N; i++ {
+		deque.Append(i)
+	}
+}
+
+// Considering BoundDeque embeds a Deque, no need to cover general
+// cases that are not specifically related to capacity management.
+func TestBoundDequePrepend(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		desc   string
+		deque  *BoundDeque[int]
+		wantOk bool
+	}{
+		{
+			desc:   "Prepend to BoundDeque with non null capacity and available space",
+			deque:  NewBoundDeque[int](1),
+			wantOk: true,
+		},
+		{
+			desc:   "Prepend to BoundDeque with non null capacity and available space",
+			deque:  NewBoundDeque(1, []int{42}...),
+			wantOk: false,
+		},
+		{
+			desc:   "Prepend to BoundDeque with null capacity",
+			deque:  NewBoundDeque[int](0),
+			wantOk: false,
+		},
+	}
+
+	for _, tC := range testCases {
+		tC := tC
+
+		t.Run(tC.desc, func(t *testing.T) {
+			t.Parallel()
+
+			gotOk := tC.deque.Prepend(42)
+
+			assert.Equal(t, tC.wantOk, gotOk)
+		})
+	}
+}
+
+func BenchmarkBoundDeque(b *testing.B) {
+	b.ReportAllocs()
+
+	deque := NewBoundDeque[int](1)
+
+	for i := 0; i < b.N; i++ {
+		deque.Prepend(i)
+	}
 }

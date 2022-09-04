@@ -5,9 +5,9 @@ import (
 	"strings"
 )
 
-func ExamplePQueue() {
+func ExamplePriorityQueue() {
 	// Let's create a new max ordered priority queue
-	var priorityQueue *PQueue = NewPQueue(MINPQ)
+	priorityQueue := NewMaxPriorityQueue[string, int]()
 
 	// And push some prioritized content into it
 	priorityQueue.Push("easy as", 3)
@@ -17,18 +17,19 @@ func ExamplePQueue() {
 
 	// Now let's take a look at the min element in
 	// the priority queue
-	headValue, headPriority := priorityQueue.Head()
-	fmt.Println(headValue)    // "abc"
-	fmt.Println(headPriority) // 1
+	headValue, headPriority, ok := priorityQueue.Head()
+	if ok {
+		fmt.Println(headValue)    // "abc"
+		fmt.Println(headPriority) // 1
+	}
 
 	// Okay the song order seems to be preserved, let's
 	// roll
-	var jacksonFive []string = make([]string, priorityQueue.Size())
+	jacksonFive := make([]string, priorityQueue.Size())
 
 	for i := 0; i < len(jacksonFive); i++ {
-		value, _ := priorityQueue.Pop()
-
-		jacksonFive[i] = value.(string)
+		value, _, _ := priorityQueue.Pop()
+		jacksonFive[i] = value
 	}
 
 	fmt.Println(strings.Join(jacksonFive, " "))
@@ -36,7 +37,7 @@ func ExamplePQueue() {
 
 func ExampleDeque() {
 	// Let's create a new deque data structure
-	var deque *Deque = NewDeque()
+	deque := NewDeque[string]()
 
 	// And push some content into it using the Append
 	// and Prepend methods
@@ -47,18 +48,25 @@ func ExampleDeque() {
 
 	// Now let's take a look at what are the first and
 	// last element stored in the Deque
-	firstValue := deque.First()
-	lastValue := deque.Last()
-	fmt.Println(firstValue) // "abc"
-	fmt.Println(lastValue)  // 1
+	firstValue, ok := deque.First()
+	if ok {
+		fmt.Println(firstValue) // "abc"
+	}
+
+	lastValue, ok := deque.Last()
+	if ok {
+		fmt.Println(lastValue) // 1
+	}
 
 	// Okay now let's play with the Pop and Shift
 	// methods to bring the song words together
-	var jacksonFive []string = make([]string, deque.Size())
+	jacksonFive := make([]string, deque.Size())
 
 	for i := 0; i < len(jacksonFive); i++ {
-		value := deque.Shift()
-		jacksonFive[i] = value.(string)
+		value, ok := deque.Shift()
+		if ok {
+			jacksonFive[i] = value
+		}
 	}
 
 	// abc 123 easy as do re mi
@@ -68,7 +76,7 @@ func ExampleDeque() {
 func ExampleQueue() {
 	// Create a new queue and pretend we're handling starbucks
 	// clients
-	var queue *Queue = NewQueue()
+	queue := NewQueue[string]()
 
 	// Let's add the incoming clients to the queue
 	queue.Enqueue("grumpyClient")
@@ -78,14 +86,14 @@ func ExampleQueue() {
 	fmt.Println(queue.Head()) // grumpyClient
 
 	// Let's handle the clients asynchronously
-	for client := queue.Dequeue(); client != nil; {
+	for client, ok := queue.Dequeue(); ok; {
 		go fmt.Println(client)
 	}
 }
 
 func ExampleStack() {
 	// Create a new stack and put some plates over it
-	var stack *Stack = NewStack()
+	stack := NewStack[string]()
 
 	// Let's put some plates on the stack
 	stack.Push("redPlate")
@@ -95,18 +103,27 @@ func ExampleStack() {
 	fmt.Println(stack.Head()) // greenPlate
 
 	// What's on top of the stack?
-	value := stack.Pop()
-	fmt.Println(value.(string)) // greenPlate
+	value, ok := stack.Pop()
+	if ok {
+		fmt.Println(value) // greenPlate
+	}
 
 	stack.Push("yellowPlate")
-	value = stack.Pop()
-	fmt.Println(value.(string)) // yellowPlate
+
+	value, ok = stack.Pop()
+	if ok {
+		fmt.Println(value) // yellowPlate
+	}
 
 	// What's on top of the stack?
-	value = stack.Pop()
-	fmt.Println(value.(string)) // bluePlate
+	value, ok = stack.Pop()
+	if ok {
+		fmt.Println(value) // bluePlate
+	}
 
 	// What's on top of the stack?
-	value = stack.Pop()
-	fmt.Println(value.(string)) // redPlate
+	value, ok = stack.Pop()
+	if ok {
+		fmt.Println(value) // redPlate
+	}
 }
