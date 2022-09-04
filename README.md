@@ -1,5 +1,11 @@
 # Lane
 
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![Build Status](https://github.com/oleiade/lane/actions/workflows/go.yml/badge.svg)](https://github.com/oleiade/lane/actions/workflows/go.yml)
+[![Go Documentation](https://pkg.go.dev/badge/github.com/oleiade/lane#pkg-types.svg)](https://pkg.go.dev/github.com/oleiade/lane#pkg-types)
+[![Go Report Card](https://goreportcard.com/badge/github.com/oleiade/lane)](https://goreportcard.com/report/github.com/oleiade/lane)
+![Go Version](https://img.shields.io/github/go-mod/go-version/oleiade/lane)
+
 The Lane package provides implementations of generic `Queue`, `PriorityQueue`, `Stack`, and `Deque` data structures. It was designed with simplicity, performance, and concurrent usage in mind.
 
 ## Installation
