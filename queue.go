@@ -2,7 +2,7 @@ package lane
 
 // Queue is a FIFO (First in first out) data structure implementation.
 // It is based on a Deque container and focuses its API on core
-// functionalities: Enqueue, Dequeue, Head, Size, Empty. 
+// functionalities: Enqueue, Dequeue, Head, Size, Empty.
 //
 // Every operation's time complexity is O(1).
 //
@@ -13,7 +13,7 @@ type Queue[T any] struct {
 }
 
 // NewQueue produces a new Queue instance.
-func NewQueue[T any](items...T) *Queue[T] {
+func NewQueue[T any](items ...T) *Queue[T] {
 	deque := NewDeque[T]()
 
 	for _, item := range items {
