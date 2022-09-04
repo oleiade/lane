@@ -59,7 +59,7 @@ func (l *List[T]) PushBack(v T) *Element[T] {
 }
 
 // InsertBefore inserts a new element e with value v
-// immediately before mark and returns e.
+// before the mark element and returns e.
 func (l *List[T]) InsertBefore(v T, mark *Element[T]) *Element[T] {
 	if mark.list != l {
 		return nil
@@ -69,7 +69,7 @@ func (l *List[T]) InsertBefore(v T, mark *Element[T]) *Element[T] {
 }
 
 // InsertAfter inserts a new element e with value v
-// immediately after mark and returns e.
+// after the mark element and returns e.
 func (l *List[T]) InsertAfter(v T, mark *Element[T]) *Element[T] {
 	if mark.list != l {
 		return nil
@@ -123,7 +123,7 @@ func (l *List[T]) MoveAfter(e, mark *Element[T]) {
 	l.move(e, mark)
 }
 
-// PushBackList inserts a copy of an other list at the back of list l.
+// PushBackList inserts a copy of another list at the back of list l.
 func (l *List[T]) PushBackList(other *List[T]) {
 	l.lazyInit()
 
@@ -132,7 +132,7 @@ func (l *List[T]) PushBackList(other *List[T]) {
 	}
 }
 
-// PushFrontList inserts a copy of an other list at the front of list l.
+// PushFrontList inserts a copy of another list at the front of list l.
 func (l *List[T]) PushFrontList(other *List[T]) {
 	l.lazyInit()
 	for i, e := other.Len(), other.Back(); i > 0; i, e = i-1, e.Prev() {
@@ -197,7 +197,7 @@ type Element[T any] struct {
 }
 
 // Next returns the next list element or nil.
-func (e *Element[T]) Next() *Element[T] {
+func (e *Element[T]) Next() *Element[T] { //nolint:revive
 	if p := e.next; e.list != nil && p != &e.list.root {
 		return p
 	}
@@ -206,7 +206,7 @@ func (e *Element[T]) Next() *Element[T] {
 }
 
 // Prev returns the previous list element or nil.
-func (e *Element[T]) Prev() *Element[T] {
+func (e *Element[T]) Prev() *Element[T] { //nolint:revive
 	if p := e.prev; e.list != nil && p != &e.list.root {
 		return p
 	}

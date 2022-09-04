@@ -6,13 +6,13 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
-// PriorityQueue is a heap priority queue data structure implementation.
+// PriorityQueue is a heap-based priority-queue data structure implementation.
 //
-// It can be either be minimum (ascending) or maximum (descending)
-// oriented/ordered. Its type parameters `T` and `P` respectively
-// specify the value underlying type, and the priority underlying type.
+// It can either be min (ascending) or max (descending)
+// oriented/ordered. Its type parameters `T` and `P`, respectively
+// specify the underlying value type and the underlying priority type.
 //
-// Every operations are synchronized and goroutine-safe.
+// Every operation on PriorityQueues are goroutine-safe.
 type PriorityQueue[T any, P constraints.Ordered] struct {
 	sync.RWMutex
 	items      []*priorityQueueItem[T, P]
@@ -21,8 +21,8 @@ type PriorityQueue[T any, P constraints.Ordered] struct {
 }
 
 // NewPriorityQueue instantiates a new PriorityQueue with the provided comparison heuristic.
-// The package defines the `Max` and `Min` heuristic to define a maximum-oriented or
-// minimum-oriented heuristic respectively.
+// The package defines the `Max` and `Min` heuristic to define a max-oriented or
+// min-oriented heuristics, respectively.
 func NewPriorityQueue[T any, P constraints.Ordered](heuristic func(lhs, rhs P) bool) *PriorityQueue[T, P] {
 	items := make([]*priorityQueueItem[T, P], 1)
 	items[0] = nil
@@ -46,7 +46,7 @@ func NewMinPriorityQueue[T any, P constraints.Ordered]() *PriorityQueue[T, P] {
 
 // Maximum returns whether `rhs` is greater than `lhs`.
 //
-// It can be used as a comparison heuristic during a PriorityQueue's
+// Use it as a comparison heuristic during a PriorityQueue's
 // instantiation.
 func Maximum[T constraints.Ordered](lhs, rhs T) bool {
 	return lhs < rhs
@@ -54,14 +54,14 @@ func Maximum[T constraints.Ordered](lhs, rhs T) bool {
 
 // Minimum returns whether `rhs` is less than `lhs`.
 //
-// It can be used as a comparison heuristic during a PriorityQueue's
+// Use it as a comparison heuristic during a PriorityQueue's
 // instantiation.
 func Minimum[T constraints.Ordered](lhs, rhs T) bool {
 	return lhs > rhs
 }
 
 // Push inserts the value in the PriorityQueue with the provided priority
-// in at most O(log n) time complexity.
+// in at most *O(log n)* time complexity.
 func (pq *PriorityQueue[T, P]) Push(value T, priority P) {
 	item := newPriorityQueueItem(value, priority)
 
@@ -72,9 +72,9 @@ func (pq *PriorityQueue[T, P]) Push(value T, priority P) {
 	pq.swim(pq.size())
 }
 
-// Pop and returns the highest or lowest priority item (depending on the
+// Pop and return the highest or lowest priority item (depending on the
 // comparison heuristic of your PriorityQueue) from the PriorityQueue in
-// at most O(log n) complexity.
+// at most *O(log n)* complexity.
 func (pq *PriorityQueue[T, P]) Pop() (value T, priority P, ok bool) {
 	pq.Lock()
 	defer pq.Unlock()
@@ -99,7 +99,7 @@ func (pq *PriorityQueue[T, P]) Pop() (value T, priority P, ok bool) {
 
 // Head returns the highest or lowest priority item (depending on
 // the comparison heuristic of your PriorityQueue) from the PriorityQueue
-// in O(1) complexity.
+// in *O(1)* complexity.
 func (pq *PriorityQueue[T, P]) Head() (value T, priority P, ok bool) {
 	pq.RLock()
 	defer pq.RUnlock()
@@ -155,8 +155,7 @@ func (pq *PriorityQueue[T, P]) sink(k uint) {
 }
 
 // size is a private method that's not goroutine-safe.
-// It is meant to be called by a method who has already
-// acquired a lock on the PriorityQueue.
+// It assumes the caller already has acquired a lock on the PriorityQueue.
 func (pq *PriorityQueue[T, P]) size() uint {
 	return pq.itemCount
 }

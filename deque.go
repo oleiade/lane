@@ -9,18 +9,18 @@ type Dequer[T any] interface {
 	Deque[T] | BoundDeque[T]
 }
 
-// Deque is a head-tail linked list data structure implementation.
+// Deque implements a head-tail linked list data structure.
 //
-// The Deque's implementation is built upon a doubly linked list
-// container, so that every operations' time complexity is O(1) (N.B:
-// linked-list are not CPU-cache friendly).
-// Every operation on a Deque are goroutine-safe and ready
+// Under the hood, the Deque's implementation is built upon a doubly linked list
+// container, so that every operation's time complexity is *O(1)*.
+// Every operation on a Deque is goroutine-safe and ready.
+//
+// Note that linked-list are not CPU-cache friendly).
 // for concurrent usage.
 type Deque[T any] struct {
 	sync.RWMutex
 
-	// container is the underlying storage container
-	// of deque's elements.
+	// The underlying storage container.
 	container *List[T]
 }
 
@@ -37,7 +37,7 @@ func NewDeque[T any](items ...T) *Deque[T] {
 	}
 }
 
-// Append inserts item at the back of the Deque in a O(1) time complexity.
+// Append inserts item at the back of the Deque in an *O(1)* time complexity.
 func (d *Deque[T]) Append(item T) {
 	d.Lock()
 	defer d.Unlock()
@@ -45,7 +45,7 @@ func (d *Deque[T]) Append(item T) {
 	d.container.PushBack(item)
 }
 
-// Prepend inserts item at the Deque's front in a O(1) time complexity.
+// Prepend inserts item at the Deque's front in an *O(1)* time complexity.
 func (d *Deque[T]) Prepend(item T) {
 	d.Lock()
 	defer d.Unlock()
@@ -53,7 +53,7 @@ func (d *Deque[T]) Prepend(item T) {
 	d.container.PushFront(item)
 }
 
-// Pop removes and returns the back element of the Deque in O(1) time complexity.
+// Pop removes and returns the back element of the Deque in an *O(1)* time complexity.
 func (d *Deque[T]) Pop() (item T, ok bool) {
 	d.Lock()
 	defer d.Unlock()
@@ -67,7 +67,7 @@ func (d *Deque[T]) Pop() (item T, ok bool) {
 	return
 }
 
-// Shift removes and returns the front element of the Deque in O(1) time complexity.
+// Shift removes and returns the front element of the Deque in *O(1)* time complexity.
 func (d *Deque[T]) Shift() (item T, ok bool) {
 	d.Lock()
 	defer d.Unlock()
@@ -81,7 +81,7 @@ func (d *Deque[T]) Shift() (item T, ok bool) {
 	return
 }
 
-// First returns the first value stored in the Deque in O(1) time complexity.
+// First returns the first value stored in the Deque in *O(1)* time complexity.
 func (d *Deque[T]) First() (item T, ok bool) {
 	d.RLock()
 	defer d.RUnlock()
@@ -95,7 +95,7 @@ func (d *Deque[T]) First() (item T, ok bool) {
 	return
 }
 
-// Last returns the last value stored in the Deque in O(1) time complexity.
+// Last returns the last value stored in the Deque in *O(1)* time complexity.
 func (d *Deque[T]) Last() (item T, ok bool) {
 	d.RLock()
 	defer d.RUnlock()
@@ -116,7 +116,7 @@ func (d *Deque[T]) Size() uint {
 	return d.container.Len()
 }
 
-// Empty checks if the deque is empty.
+// Empty checks if the Deque is empty.
 func (d *Deque[T]) Empty() bool {
 	d.RLock()
 	defer d.RUnlock()
@@ -124,9 +124,8 @@ func (d *Deque[T]) Empty() bool {
 	return d.container.Len() == 0
 }
 
-// Capaciter is an interface type providing operations
-// related to capacity management.
-type Capaciter interface {
+// Capacitor defines operations related to capacity management.
+type Capacitor interface {
 	// Capacity returns the current capacity of the underlying type implementation.
 	Capacity() int
 
@@ -134,14 +133,15 @@ type Capaciter interface {
 	IsFull() bool
 }
 
-// BoundDeque is a head-tail linked list data structure implementation
-// with a user-defined capacity: any operation leading to the size
-// of the container to overflow its capacity will fail.
+// BoundDeque implements a head-tail linked list data structure
+// with a user-defined capacity. Once full, `Append` and `Prepend`
+// operations on a BoundedDeque fail.
 //
-// The BoundDeque's implementation is built upon a doubly linked list
-// container, so that every operations' time complexity is O(1) (N.B:
-// linked-list are not CPU-cache friendly).
-// Every operation on a BoundDeque are goroutine-safe and ready
+// Under the hood, BoundDeque's implementation relies upon a doubly linked list
+// container. Thus, every operation on a BoundedDeque has a time complexity of *O(1)*.
+// Every operation on a BoundDeque is goroutine-safe.
+//
+// Note that linked-list are not CPU-cache friendly).
 // for concurrent usage.
 type BoundDeque[T any] struct {
 	Deque[T]
@@ -159,42 +159,42 @@ func NewBoundDeque[T any](capacity uint, values ...T) *BoundDeque[T] {
 	}
 }
 
-// Capacity returns the BoundDeque's capacity.
-func (bd *BoundDeque[T]) Capacity() uint {
-	return bd.capacity
+// Capacity returns BoundDeque's capacity.
+func (d *BoundDeque[T]) Capacity() uint {
+	return d.capacity
 }
 
 // Full checks if the BoundDeque is full.
-func (bd *BoundDeque[T]) Full() bool {
-	return bd.container.Len() >= bd.capacity
+func (d *BoundDeque[T]) Full() bool {
+	return d.container.Len() >= d.capacity
 }
 
-// Append inserts item at the back of the BoundDeque in a O(1) time complexity.
-// If the BoundDeque's capacity disallows the insertion, Append returns false.
-func (bd *BoundDeque[T]) Append(item T) bool {
-	bd.Lock()
-	defer bd.Unlock()
+// Append inserts an item at the back of the BoundDeque in an *O(1)* time complexity.
+// If BoundDeque's capacity disallows the insertion, Append returns false.
+func (d *BoundDeque[T]) Append(item T) bool {
+	d.Lock()
+	defer d.Unlock()
 
-	if bd.Full() {
+	if d.Full() {
 		return false
 	}
 
-	bd.container.PushBack(item)
+	d.container.PushBack(item)
 
 	return true
 }
 
-// Prepend inserts item at the BoundDeque's front in a O(1) time complexity.
-// If the BoundDeque's capacity disallows the insertion, Prepend returns false.
-func (bd *BoundDeque[T]) Prepend(item T) bool {
-	bd.Lock()
-	defer bd.Unlock()
+// Prepend inserts item at the BoundDeque's front in an *O(1)* time complexity.
+// If BoundDeque's capacity disallows the insertion, Prepend returns false.
+func (d *BoundDeque[T]) Prepend(item T) bool {
+	d.Lock()
+	defer d.Unlock()
 
-	if bd.Full() {
+	if d.Full() {
 		return false
 	}
 
-	bd.container.PushFront(item)
+	d.container.PushFront(item)
 
 	return true
 }

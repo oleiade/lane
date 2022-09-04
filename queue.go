@@ -1,13 +1,13 @@
 package lane
 
-// Queue is a FIFO (First in first out) data structure implementation.
-// It is based on a Deque container and focuses its API on core
+// Queue is a First In First Out data structure implementation.
+//
+// Built upon a Deque container, its API focuses on the following core
 // functionalities: Enqueue, Dequeue, Head, Size, Empty.
 //
-// Every operation's time complexity is O(1).
+// Every operation has a time complexity of *O(1)*.
 //
-// As it is implemented using a Deque container, every operations
-// over an instiated Queue are synchronized and goroutine-safe.
+// Every operation over an instantiated Queue are goroutine-safe.
 type Queue[T any] struct {
 	container *Deque[T]
 }
@@ -25,17 +25,17 @@ func NewQueue[T any](items ...T) *Queue[T] {
 	}
 }
 
-// Enqueue adds an item at the back of the Queue in O(1) time complexity.
+// Enqueue adds an item at the back of the Queue in *O(1)* time complexity.
 func (q *Queue[T]) Enqueue(item T) {
 	q.container.Prepend(item)
 }
 
-// Dequeue removes and returns the Queue's front item in O(1) time complexity.
+// Dequeue removes and returns the Queue's front item in *O(1)* time complexity.
 func (q *Queue[T]) Dequeue() (item T, ok bool) {
 	return q.container.Pop()
 }
 
-// Head returns the Queue's front queue item in O(1) time complexity.
+// Head returns the Queue's front queue item in *O(1)* time complexity.
 func (q *Queue[T]) Head() (item T, ok bool) {
 	return q.container.Last()
 }

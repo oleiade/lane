@@ -6,7 +6,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/oleiade/lane)](https://goreportcard.com/report/github.com/oleiade/lane)
 ![Go Version](https://img.shields.io/github/go-mod/go-version/oleiade/lane)
 
-The Lane package provides implementations of generic `Queue`, `PriorityQueue`, `Stack`, and `Deque` data structures. It was designed with simplicity, performance, and concurrent usage in mind.
+The Lane package provides implementations of generic `Queue`, `PriorityQueue`, `Stack`, and `Deque` data structures. Its design focuses on simplicity, performance, and concurrent usage.
 
 <!-- toc -->
 
@@ -15,14 +15,14 @@ The Lane package provides implementations of generic `Queue`, `PriorityQueue`, `
     - [Using `v2` releases](#using-v2-releases)
     - [Using `v1` releases](#using-v1-releases)
   - [Usage/Examples](#usageexamples)
-    - [Priority Queue](#priority-queue)
+    - [Priority queue](#priority-queue)
       - [Example](#example)
     - [Deque](#deque)
-      - [Deque Example](#deque-example)
+      - [Deque example](#deque-example)
     - [Queue](#queue)
-      - [Queue Example](#queue-example)
+      - [Queue example](#queue-example)
     - [Stack](#stack)
-      - [Stack Example](#stack-example)
+      - [Stack example](#stack-example)
   - [Performance](#performance)
   - [Documentation](#documentation)
   - [License](#license)
@@ -31,7 +31,7 @@ The Lane package provides implementations of generic `Queue`, `PriorityQueue`, `
 
 Using this package requires a working Go environment. [See the install instructions for Go](http://golang.org/doc/install.html).
 
-Go Modules are required when using this package. [See the go blog guide on using Go Modules](https://blog.golang.org/using-go-modules).
+This package requires a modern version of Go supporting modules: [see the go blog guide on using Go Modules](https://blog.golang.org/using-go-modules).
 
 ### Using `v2` releases
 
@@ -63,15 +63,15 @@ import (
 
 ## Usage/Examples
 
-### Priority Queue
+### Priority queue
 
-`PriorityQueue` is a _heap priority queue_ data structure implementation. It can be either maximum (descending) or minimum (ascending) oriented (ordered). Every operation on a `PriorityQueue` are synchronized and goroutine-safe. It performs `Push` and `Pop` operations in `O(log N)` time.
+`PriorityQueue` implements a _heap priority queue_ data structure. It can be either max (descending) or min (ascending) ordered. Every operation on a `PriorityQueue` is  goroutine-safe. It performs `Push` and `Pop` operations in *O(log N)* time.
 
 #### Example
 
 ```go
-// Let's create a new max ordered priority queue
-priorityQueue := lane.NewMaxPriorityQueue[string, int]()
+// Create a new max ordered priority queue
+priorityQueue := NewMaxPriorityQueue[string, int]()
 
 // And push some prioritized content into it
 priorityQueue.Push("easy as", 3)
@@ -79,7 +79,7 @@ priorityQueue.Push("123", 2)
 priorityQueue.Push("do re mi", 4)
 priorityQueue.Push("abc", 1)
 
-// Now let's take a look at the min element in
+// Take a look at the min element in
 // the priority queue
 headValue, headPriority, ok := priorityQueue.Head()
 if ok {
@@ -87,8 +87,7 @@ if ok {
     fmt.Println(headPriority) // 1
 }
 
-// Okay the song order seems to be preserved, let's
-// roll
+// The operations seem to preserve the song order
 jacksonFive := make([]string, priorityQueue.Size())
 
 for i := 0; i < len(jacksonFive); i++ {
@@ -101,15 +100,15 @@ fmt.Println(strings.Join(jacksonFive, " "))
 
 ### Deque
 
-Deque is a _head-tail linked list data_ structure implementation. It is built upon a doubly-linked list container, and every operation on a `Deque` are performed in `O(1)` time complexity. Every operation on a `Deque` is synchronized and goroutine-safe.
+Deque implements a _head-tail linked list data_ structure. Built upon a doubly linked list container, every operation performed on a `Deque` happen in *O(1)* time complexity. Every operation on a `Deque` are goroutine-safe.
 
-Deques can optionally be instantiated with a limited capacity using the dedicated `NewBoundDeque` constructor, whereby the return value of the `Append` and `Prepend` return false if the Deque was full and the item was not added.
+Users have the option to instantiate Deques with a limited capacity using the dedicated `NewBoundDeque` constructor. When a bound Deque is full, the `Append` and `Prepend` operations fail.
 
-#### Deque Example
+#### Deque example
 
 ```go
-// Let's create a new deque data structure
-deque := lane.NewDeque[string]()
+// Create a new Deque data structure
+deque := NewDeque[string]()
 
 // And push some content into it using the Append
 // and Prepend methods
@@ -118,8 +117,8 @@ deque.Prepend("123")
 deque.Append("do re mi")
 deque.Prepend("abc")
 
-// Now let's take a look at what are the first and
-// last element stored in the Deque
+// Take a look at what the first and
+// last element stored in the Deque are.
 firstValue, ok := deque.First()
 if ok {
     fmt.Println(firstValue) // "abc"
@@ -130,7 +129,7 @@ if ok {
     fmt.Println(lastValue) // 1
 }
 
-// Okay now let's play with the Pop and Shift
+// Use the `Pop` and `Shift`
 // methods to bring the song words together
 jacksonFive := make([]string, deque.Size())
 
@@ -147,23 +146,22 @@ fmt.Println(strings.Join(jacksonFive, " "))
 
 ### Queue
 
-`Queue` is a **FIFO** (_First In First Out_) data structure implementation. It is built upon a `Deque` container and focuses its API on core functionalities: `Enqueue`, `Dequeue`, `Head`. Every operation's time complexity is O(1). Every operation on a `Queue` is synchronized and goroutine-safe.
+`Queue` is a **FIFO** (_First In First Out_) data structure implementation. Built upon a `Deque` container, it focuses its API on the following core functionalities: `Enqueue`, `Dequeue`, `Head`. Every operation on a Queue has a time complexity of *O(1)*. Every operation on a `Queue` is goroutine-safe.
 
-#### Queue Example
+#### Queue example
 
 ```go
-// Create a new queue and pretend we're handling starbucks
-// clients
-queue := lane.NewQueue[string]()
+// Create a new queue and pretend to handle Starbucks clients
+queue := NewQueue[string]()
 
-// Let's add the incoming clients to the queue
+// Add the incoming clients to the queue
 queue.Enqueue("grumpyClient")
 queue.Enqueue("happyClient")
 queue.Enqueue("ecstaticClient")
 
 fmt.Println(queue.Head()) // grumpyClient
 
-// Let's handle the clients asynchronously
+// Handle the clients asynchronously
 for {
     client, ok := queue.Dequeue()
     if !ok {
@@ -176,21 +174,22 @@ for {
 
 ### Stack
 
-`Stack` is a **LIFO** ( _Last in first out_ ) data structure implementation. It is built upon a `Deque` container and focuses its API on core functionalities: `Push`, `Pop`, `Head`. Every operation time complexity is O(1). Every operation on a `Stack` is synchronized and goroutine-safe.
+`Stack` implements a **Last In First Out** data structure. Built upon a `Deque` container, its API focuses on the following core functionalities: `Push`, `Pop`, `Head`. Every operation on a Stack has a time complexity of *O(1)*. Every operation on a `Stack` is goroutine-safe.
 
-#### Stack Example
+#### Stack example
 
 ```go
-stack := lane.NewStack[string]()
+// Create a new stack and put some plates over it
+stack := NewStack[string]()
 
-// Let's put some plates on the stack
+// Put some plates on the stack
 stack.Push("redPlate")
 stack.Push("bluePlate")
 stack.Push("greenPlate")
 
 fmt.Println(stack.Head()) // greenPlate
 
-// What's on top of the stack?
+// Check the top of the stack
 value, ok := stack.Pop()
 if ok {
     fmt.Println(value) // greenPlate
@@ -203,13 +202,13 @@ if ok {
     fmt.Println(value) // yellowPlate
 }
 
-// What's on top of the stack?
+// Check the top of the stack
 value, ok = stack.Pop()
 if ok {
     fmt.Println(value) // bluePlate
 }
 
-// What's on top of the stack?
+// Check the top of the stack
 value, ok = stack.Pop()
 if ok {
     fmt.Println(value) // redPlate

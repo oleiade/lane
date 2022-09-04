@@ -1,21 +1,20 @@
 package lane
 
-// Stack is a LIFO (Last in first out) data structure implementation.
-// It is based on a Deque container and focuses its API on core
+// Stack implements a Last In First Out data structure.
+//
+// Built upon a Deque container, it focuses its API on the following core
 // functionalities: Push, Pop, Head, Size, Empty.
 //
-// Every operation's time complexity is O(1).
+// Every operation's has a time complexity of *O(1)*.
 //
-// As it is implemented using a Deque container, every operations
-// over an instiated Stack are synchronized and goroutine-safe.
+// Every operations over an instantiated Stack are goroutine-safe.
 type Stack[T any] struct {
 	container *Deque[T]
 }
 
 // NewStack produces a new Stack instance.
 //
-// If any initialization variadic items are provided, they
-// will be inserted as is: lower index being the head of stack.
+// When providing initialization items, those will be inserted as-is: lower index being the head of the stack.
 func NewStack[T any](items ...T) (stack *Stack[T]) {
 	// FIXME: unwrap here instead of depending on Deque's for clarity
 	return &Stack[T]{
