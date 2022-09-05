@@ -6,7 +6,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/oleiade/lane)](https://goreportcard.com/report/github.com/oleiade/lane)
 ![Go Version](https://img.shields.io/github/go-mod/go-version/oleiade/lane)
 
-The Lane package provides implementations of generic `Queue`, `PriorityQueue`, `Stack`, and `Deque` data structures. Its design focuses on simplicity, performance, and concurrent usage.
+The Lane package provides textbook implementations of generic `Queue`, `PriorityQueue`, `Stack`, and `Deque` data structures. Its design focuses on simplicity, performance, and concurrent usage.
 
 <!-- toc -->
 
@@ -249,7 +249,7 @@ BenchmarkStackHead-8            86119761        13.76 ns/op       0 B/op       0
 
 ## Documentation
 
-For a more detailed overview of lane, please refer to [Documentation](http://godoc.org/github.com/oleiade/lane)
+For a more detailed overview of lane, please refer to [Documentation](https://pkg.go.dev/github.com/oleiade/lane/v2)
 
 ## License
 
