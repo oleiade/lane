@@ -6,7 +6,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/oleiade/lane)](https://goreportcard.com/report/github.com/oleiade/lane)
 ![Go Version](https://img.shields.io/github/go-mod/go-version/oleiade/lane)
 
-The Lane package provides implementations of generic `Queue`, `PriorityQueue`, `Stack`, and `Deque` data structures. Its design focuses on simplicity, performance, and concurrent usage.
+The Lane package provides implementations of generic `Queue`, `PriorityQueue`, `Stack`, `Deque`, and `CircularBuffer` data structures. Its design focuses on simplicity, performance, and concurrent usage.
 
 <!-- toc -->
 
@@ -23,6 +23,8 @@ The Lane package provides implementations of generic `Queue`, `PriorityQueue`, `
       - [Queue example](#queue-example)
     - [Stack](#stack)
       - [Stack example](#stack-example)
+    - [CircularBuffer](#circularbuffer)
+      - [CircularBuffer Example](#circularbuffer-example)
   - [Performance](#performance)
   - [Documentation](#documentation)
   - [License](#license)
@@ -215,6 +217,59 @@ if ok {
 }
 ```
 
+### CircularBuffer
+
+CircularBuffer implements a circular buffer (or ring buffer) data structure. It is a fixed size, first in, first out (FIFO) structure with a twist: when the buffer is full, any new item being added will overwrite the oldest item.
+
+This buffer operates with constant time complexity O(1) for key operations, making it a highly efficient structure for certain types of data handling. Every operation on a CircularBuffer is goroutine-safe.
+
+Key functionalities of CircularBuffer are `Put`, `Pop`, `Peek`, `Clear`, `Size`, `Capacity`, `Full`, `Empty` and `View`.
+
+#### CircularBuffer Example
+
+```go
+// Create a new CircularBuffer with a capacity of 3
+buffer := NewCircularBuffer[string](3)
+
+// Add some items to the buffer
+buffer.Put("redItem")
+buffer.Put("blueItem")
+buffer.Put("greenItem")
+
+fmt.Println(buffer.Size()) // 3
+fmt.Println(buffer.Capacity()) // 3
+
+// Peek at the next item to be retrieved
+value, ok := buffer.Peek()
+if ok {
+    fmt.Println(value) // redItem
+}
+
+// Retrieve the items
+value, ok = buffer.Pop()
+if ok {
+    fmt.Println(value) // redItem
+}
+
+value, ok = buffer.Pop()
+if ok {
+    fmt.Println(value) // blueItem
+}
+
+fmt.Println(buffer.Size()) // 1
+
+// Add an item, which makes the buffer full again
+buffer.Put("yellowItem")
+fmt.Println(buffer.Full()) // true
+
+// Clear the buffer
+buffer.Clear()
+fmt.Println(buffer.Empty()) // true
+```
+
+This example demonstrates key operations on a `CircularBuffer`, including creating a new buffer, adding items, checking the size, peeking at the next item, retrieving items, checking if the buffer is full, and clearing the buffer.
+
+
 ## Performance
 
 ```bash
@@ -245,6 +300,9 @@ BenchmarkQueueHead-8            85664312        13.79 ns/op       0 B/op       0
 BenchmarkNewStack-8             19925473        59.57 ns/op
 BenchmarkStackPop-8             64704993        18.80 ns/op       0 B/op       0 allocs/op
 BenchmarkStackHead-8            86119761        13.76 ns/op       0 B/op       0 allocs/op
+BenchmarkCircularBufferPut-10     	84952015	        13.83 ns/op	       0 B/op	       0 allocs/op
+BenchmarkCircularBufferPop-10     	87256335	        13.59 ns/op	       0 B/op	       0 allocs/op
+BenchmarkCircularBufferPeek-10    	88034890	        13.64 ns/op	       0 B/op	       0 allocs/op
 ```
 
 ## Documentation
